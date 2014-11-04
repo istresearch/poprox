@@ -30,7 +30,7 @@ dns_value = ""
 
 [dbconn]
 driver = "mysql"
-host = "$MEMEXDBUSER"
+host = "$ISTDBHOST"
 ;port = 3306
 dbname = "memex_ist"
 username = "$ISTDBUSER"
