@@ -14,7 +14,7 @@ function z2l(id,phpTs) {
 EOD;
 
 function dash_cnvUtcToLocal($aElemId, $aTimestamp) {
-	$theTs = new DateTime($aTimestamp.' Z');
+	$theTs = new DateTime($aTimestamp.' UTC');
 	return 'z2l("'.$aElemId.'",'.$theTs->getTimestamp().');'."\n";
 }
 

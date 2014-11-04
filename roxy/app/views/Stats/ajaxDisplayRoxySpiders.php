@@ -10,7 +10,7 @@ $jsCode = <<<EOD
 
 EOD;
 
-$theUpdateOn = new DateTime($v->results[0]['updated_on'].' Z');
+$theUpdateOn = new DateTime($v->results[0]['updated_on'].' UTC');
 $w .= '<h3>Spiders monitered as of: '.$theUpdateOn->format('D, M d @ H:i:s T');
 $theTsId = 'client-spider-timestamp';
 $w .= '<br />Locally, that would be: <span id="'.$theTsId.'">Calculating...</span>';

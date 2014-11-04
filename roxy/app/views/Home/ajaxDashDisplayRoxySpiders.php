@@ -14,11 +14,11 @@ function z2l(id,phpTs) {
 EOD;
 
 function dash_cnvUtcToLocal($aElemId, $aTimestamp) {
-	$theTs = new DateTime($aTimestamp.' Z');
+	$theTs = new DateTime($aTimestamp.' UTC');
 	return 'z2l("'.$aElemId.'",'.$theTs->getTimestamp().');'."\n";
 }
 
-$theUpdateOn = new DateTime($v->results[0]['updated_on'].' Z');
+$theUpdateOn = new DateTime($v->results[0]['updated_on'].' UTC');
 $w .= '<h3>Spiders monitered as of: '.$theUpdateOn->format('D, M d @ H:i:s T');
 $w .= '<br />Locally, that would be: <span id="client-spider-timestamp"></span>';
 $jsCode .= dash_cnvUtcToLocal('client-spider-timestamp', $v->results[0]['updated_on']);
