@@ -1,0 +1,219 @@
+@CHARSET "ISO-8859-1";
+
+/*
+ * ROXY CSS Styles & Overrides
+ */
+
+/*
+ * BITS overrides.
+ */
+body {
+	background-color: White;
+}
+
+#container-header {
+	background: -moz-linear-gradient(top, Black, rgb(86,134,177));
+	background: rgb(86,134,177);
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(Black), to(rgb(86,134,177)));
+	background: linear-gradient(to bottom, Black, rgb(86,134,177));
+}
+
+#container-menu {
+	background: -moz-linear-gradient(top, rgb(86,134,177), White);
+	background: rgb(86,134,177);
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(rgb(86,134,177)), to(White));
+	background: linear-gradient(to bottom, rgb(86,134,177), White);
+}
+
+tr.rowh { /*row header*/
+	background-color: #91278F; /* purple */
+/*	background-color: rgb(86,134,177); /* menu blue */
+	color: white;
+}
+
+tr.row1 {
+	background-color: white;
+}
+
+input.field, textarea.field, select.field {
+	background-color: #FFD5DC; /* light red */
+}
+
+/*
+ * Dashboard 
+ */
+tr.spider-not-running {
+	color: Red;
+}
+
+table#tbl_roxydb_stats {
+	font-family: Arial,Verdana,tahoma,serif;
+	text-align: right;
+}
+
+table#tbl_roxydb_stats tr.rowh {
+	background-color: #91278F; /* purple */
+/*	background-color: rgb(86,134,177); /* menu blue */
+	color: white;
+	text-decoration: underline;
+}
+
+table#tbl_roxydb_stats tr.row1 {
+	background-color: #FFD5DC; /* light red */
+}
+
+table#tbl_roxydb_stats tr.row2 {
+	background-color: #D6D6D6; /* light gray */
+}
+
+table#tbl_roxydb_stats td.label-col, table#tbl_roxydb_stats th.label-col {
+	width: 15em;
+}
+
+table#tbl_roxydb_stats td.stat-col, table#tbl_roxydb_stats th.stat-col {
+	width: 10em;
+}
+
+table#tbl_roxydb_stats td.stat-ts {
+	text-align: left;
+	font-style: oblique;
+}
+
+/*
+ * Old Poprox 
+ */
+table.rb-ad {
+	width: 95%;
+ 	background-color: White;
+	font-family: Verdana,Arial,sans-serif;
+}
+
+table.rb-ad .rb-ad-title {
+	/*font-size: 10pt;*/
+	text-align: left;
+	font-weight: 700;
+	color: #d10000;
+}
+
+/*
+ * View Ads
+ */
+table.memex-ad {
+	width: 95%;
+ 	background-color: White;
+/*	font-family: Verdana,Arial,sans-serif; */
+	font-family: Segoe UI Symbol, Lucida Sans Unicode, Arial,Verdana,tahoma,serif; 
+}
+
+table.memex-ad .memex-ad-title {
+/*	font-size: 10pt;*/
+	text-align: left;
+	font-weight: 700;
+/*	color: MidnightBlue; */
+	color: #91278F;
+}
+
+table.memex-ad .revisions {
+	vertical-align: middle;
+	text-align: left;
+	font-size: larger;
+}
+
+table#memex-ad-primary tr {
+	vertical-align: top;
+} 
+
+table#memex-ad-primary tr.section-header {
+	vertical-align: bottom;
+} 
+
+table#memex-ad-primary td {
+	/* white-space: nowrap; */
+} 
+
+table#memex-ad-primary td.label {
+	vertical-align: top;
+	text-align: right;
+	text-decoration:underline;
+	width:10em;
+}
+
+table#memex-ad-primary td.memex-ad-attribute {
+	width: 80em;
+}
+
+table#memex-ad-primary td.memex-ad-text {
+	white-space: normal;
+	vertical-align: top;
+} 
+
+table#memex-ad-extended tr {
+	vertical-align: top;
+} 
+
+table#memex-ad-extended td.label {
+	text-align: right;
+} 
+
+table#memex-ad-extended tr.section-header {
+	vertical-align: bottom;
+} 
+
+/*
+ * QRox 
+ */
+table#qrox-results {
+
+}
+
+table#qrox-results tr {
+	vertical-align: middle;
+}
+
+/*
+ * Mtask Phone
+ */
+div.mtask_phone.instruction_text {
+	font-size: 16px;	
+	width: 95%;	
+	padding-top: 1em;
+	padding-left: 1em;
+	padding-right: 1em;
+	padding-bottom: 1em;
+/*	background-color: #FFFF99; */
+	border:solid 2px #330099;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-webkit-margin-before: 0em;
+	-webkit-margin-after: 0em;
+}
+
+div#phone_msg_area.mtask_phone {
+	font-size:16px;	
+	font-style: italic;	
+}
+
+button.mtask_phone {
+	font-family: Verdana,Arial,sans-serif;
+}
+
+div#phone_area span.mtask_phone.phone_text {
+	font-family: Verdana,Arial,sans-serif;
+	font-size:16px;	
+}
+
+div#phone_area p.mtask_phone.phone_text {
+	font-family: Lucidatypewriter, Courier New, monospace;
+	font-size:16px;
+}
+
+div#phone_area span.mtask_phone.phone {
+	font-family: Verdana,Arial,sans-serif;
+	font-size:16px;	
+}
+
+div#phone_area p.mtask_phone.phone {
+	font-family: Lucidatypewriter, Courier New, monospace;
+	font-size:16px;
+}

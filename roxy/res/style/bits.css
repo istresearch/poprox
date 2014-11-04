@@ -1,0 +1,347 @@
+@CHARSET "ISO-8859-1";
+
+/*
+ * BITS CSS STYLES
+ */
+
+/*
+ * General page style. 
+ */
+body {
+	background-color: LightSteelBlue;
+	margin: 0px;
+	padding: 0px;
+	color: black;
+	font-family: Lucida Sans Unicode, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+#container-header {
+	height: 80px;
+	width: 100%;
+	color: white;
+	font-weight: bolder;
+	font-size: 12px;
+	text-align: left;
+	text-indent: 3px;
+
+	/* moz: old FF; webkit: Safari 4+, Chrome 2-35 */
+	background: -moz-linear-gradient(top, Navy, #0033CC);
+	background: Navy;
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(Navy), to(#0033CC));
+	background: linear-gradient(to bottom, Navy, #0033CC);
+	
+	/* if you have an image & gradient (webkit: Safari 4+, Chrome 2+)
+	background: url('PATH-TO-IMG') center center no-repeat;
+	background: url('PATH-TO-IMG') center center no-repeat, -webkit-gradient(linear, 0 0, 0 100%, from(@startColor), to(@endColor));
+	background: url('PATH-TO-IMG') center center no-repeat, linear-gradient(top, @startColor, @endColor);
+	*/
+}
+
+#container-menu {
+	height:auto;
+	width: 100%;
+	color: white;
+	font-weight: bolder;
+	font-size: 12px;
+	text-align: left;
+	text-indent: 3px;
+	padding-left: 1em;
+	
+	/* moz: old FF; webkit: Safari 4+, Chrome 2-35 */
+	background: -moz-linear-gradient(top, #0033CC, Navy);
+	background: Navy;
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(#0033CC), to(Navy));
+	background: linear-gradient(to bottom, #0033CC, Navy);
+}
+
+/* use these lines if you want the header to match the menu's color highlight
+#container-header {
+	background: -moz-linear-gradient(top, Black, rgb(86,134,177));
+	background: rgb(86,134,177);
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(Black), to(rgb(86,134,177)));
+	background: linear-gradient(to bottom, Black, rgb(86,134,177));
+}
+
+#container-menu {
+	background: -moz-linear-gradient(top, rgb(86,134,177), White);
+	background: rgb(86,134,177);
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(rgb(86,134,177)), to(White));
+	background: linear-gradient(to bottom, rgb(86,134,177), White);
+}
+*/
+	
+#container-header a:link, #container-header a:active, #container-header a:visited {
+	color: LightSteelBlue;
+	text-decoration:none;
+}
+
+#container-header td.logo {
+	width:80px;
+	padding-left:1em;
+}
+
+#container-header img.logo {
+	height:72px;
+	width:72px;
+	border:0;
+}
+
+#container-header .title {
+	font-weight:bold;
+	font-size:24px;	
+}
+
+#container-header .mode-demo {
+	color: hsl(30,100%,50%);
+}
+
+#container-header .subtitle {
+	font-style:italic;
+}
+
+#container-header .auth-area {
+	text-align:right;
+	padding-right:1em;
+}
+
+#container-body {
+	width:96%;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+#container-footer {
+	font-size:12px;
+	text-align:center;
+	border-top:solid 1px #000000;
+	padding:5px;
+}
+
+/*
+ * Error Display
+ */
+div#container-error {
+	background-color: black;
+	font-family: Lucidatypewriter, Courier New, monospace;
+	font-size: 14px;
+}
+
+div#container-error .msg-context {
+	color: yellow;
+}
+
+.msg-error {
+	color: #FF3366;
+	font-weight: bolder;
+}
+
+div#container-error .msg-debug {
+	color: aqua;
+}
+
+div#container-error .msg-trace {
+	color: lime;
+}
+
+/*
+ * Supplemental Menu CSS
+ */
+.menu_icon {
+	vertical-align: middle;
+	height: 24px;
+}
+
+/* 
+ * User Messages
+ */
+div#container-user-msgs {
+	text-decoration: none;
+	padding-top: 1em;
+	padding-bottom: 1em;
+}
+
+ul.user-msgs {
+	padding-top: 1em;
+	padding-right: 3em;
+	padding-bottom: 1em;
+	background-color: #FFFF99;
+	border:solid 2px #330099;
+	font-size: 12px;
+}
+
+ul.user-msgs li.notice {
+	padding-top: 1em;
+	padding-bottom: 1em;
+}
+
+ul.user-msgs li.warning {
+	padding-top: 1em;
+	padding-bottom: 1em;
+	background-color: #FFCC33;
+}
+
+ul.user-msgs li.error {
+	padding-top: 1em;
+	padding-bottom: 1em;
+	color: white;
+	background-color: red;
+}
+
+/*
+ * Data Entry & Display
+ */
+.data-outline {
+	border:solid 1px #000000;
+	font-size: 11px;
+}
+
+.list-header {
+	background-color:#142c3e;
+	color:white;
+}
+
+.list-header A:link,a:visited,a:active,a:hover {
+	color:white;
+}
+
+tr.rowh { /*row header*/
+	background-color: Navy;
+	color: LightSteelBlue;
+	text-decoration: underline;
+}
+
+tr.row1 {
+	background-color: #FFFF99;
+/*	background:url('../images/row1.gif'); */
+}
+
+tr.row2 {
+	background-color: #E8E8E8;
+/*	background-color: #FFFF66; */
+/*	background-color: #C0C0C0; */
+/*	background:url('../images/row2.gif'); */
+}
+
+tr.rowf {
+	background-color: Navy;
+	color: LightSteelBlue;
+}
+
+tr.row-hover {
+/*	background:url('../images/hover.jpg'); */
+}
+
+td.num {
+	text-align: right;
+}
+
+table.data-entry td, table.data-entry th {
+	padding: 2px;
+}
+
+table.data-entry .data-label {
+	font-size: 12px;
+	font-weight: bolder;
+	text-align: right;
+}
+
+table.data-entry .data-field {
+	font-size: 12px;
+}
+
+table.data-display td, table.data-display th {
+	font-size: 12px;
+	padding: 2px;
+}
+
+.smalltext {
+	font-size: x-small;
+	font-family: verdana, sans-serif;
+}
+
+.infotext {
+	font-size: 10px;
+	font-style: italic;
+}
+
+input.hidden {
+    width: 0px;
+    height: 0px;
+    margin: 0px;
+    padding: 0px;
+    outline: none;
+    border: 0px;
+}
+
+input.field, textarea.field, select.field {
+
+}
+
+/*
+ * Pager
+ */
+.pager {
+	text-align:center;
+	font-size:larger;
+	vertical-align:middle;
+}
+
+img.pager {
+	display:inline;
+}
+
+.current-page {
+	font-weight:bolder;
+}
+ 
+ 
+/*
+ * Buttons
+ */
+input.btn-primary {
+	font-weight: bolder;
+}
+
+input.btn-secondary {
+	
+}
+
+/*
+ * Hyperlinks
+ */
+a:link,a:active,a:visited {
+	color: MidnightBlue;
+	text-decoration: none;
+}
+
+a:hover {
+	color: Purple;
+	text-decoration: underline;
+}
+
+/*
+ * General
+ */
+.invisible {
+	opacity:0.0;
+	cursor:text;
+}
+
+ins {
+ 	background-color: LightGreen;
+ 	padding-left:2px;
+ 	padding-right:2px;
+}
+
+ins a:link,a:active,a:visited {
+	background-color: #00FFFF;
+}
+
+del {
+ 	background-color: Pink;
+ 	padding-left:2px;
+ 	padding-right:2px;
+}
+
+ 

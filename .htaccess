@@ -1,0 +1,46 @@
+# Do not let apache guess the URL intentions, either it is correct or not.
+Options -MultiViews
+
+# Don't show directory listings for URLs which map to a directory.
+Options -Indexes
+
+#keep prying eyes out of our config files
+<files *.ini>
+	order allow,deny
+	deny from all
+</files>
+
+#keep prying eyes out of our pw files
+<files *.pw>
+	order allow,deny
+	deny from all
+</files>
+
+#disallow any *.php file except index*.php
+<FilesMatch "\.php$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+<FilesMatch "index.*\.php$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+#phpBitsTheater framework redirection
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+#needed for HTTP Basic authorization
+	RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^(.*)$ index.php?url=$1 [PT,QSA,L]	
+</IfModule>
+
+#Please consider moving the contents of this file into 
+#your webserver's httpd.conf like so:
+#
+#    <Directory /www/this/folders/path>
+#    RewriteCond ...
+#    </Directory>
+#    
+#The resulting performance & security gains may be worth it.
