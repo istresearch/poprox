@@ -119,4 +119,14 @@ class Settings extends \\stdClass {
 }//end namespace
 EOF
 
+
+if [ "$ELBSSL" == "True" ]; then
+cat >> /var/www/html/poprox/.htaccess <<EOF
+<IfModule mod_rewrite.c>
+        RewriteCond %{HTTP:X-Forwarded-Proto} !https
+        RewriteRule ^.*$ https://%{SERVER_NAME}%{REQUEST_URI}
+</IfModule>
+EOF
+fi
+
 apache2 -DFOREGROUND
