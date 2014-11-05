@@ -130,7 +130,7 @@ class Permissions extends BaseModel {
 			$acctInfo =& $this->director->account_info;
 		}
 		if (empty($acctInfo)) {
-			return false; //if still no account, nothing to check against, return false.
+			return false;
 		}
 		//Strings::debugLog('acctinfo:'.Strings::debugStr($acctInfo));
 		if (!empty($acctInfo['groups']) && (array_search(1,$acctInfo['groups'],true)!==false)) {

@@ -22,6 +22,7 @@ use BitsTheater\scenes\Account as MyScene;
 use BitsTheater\models\Accounts;
 	/* @var $dbAccounts Accounts */
 use BitsTheater\models\Groups;
+	/* @var $dbGroups Groups */
 use BitsTheater\models\Auth;
 	/* @var $dbAuth Auth */
 use com\blackmoonit\Strings;
@@ -50,6 +51,8 @@ class Account extends Actor {
 	}
 	
 	public function register($aTask='data-entry') {
+		//shortcut variable $v also in scope in our view php file.
+		$v =& $this->scene;
 		$dbAccounts = $this->getProp('Accounts');
 		//make sure user/pw reg fields will not interfere with any login user/pw field in header
 		$userKey = $this->scene->getUsernameKey().'_reg';
@@ -61,11 +64,11 @@ class Account extends Actor {
 			$theRegResult = $dbAuth->canRegister($this->scene->$userKey,$this->scene->email);
 			switch ($theRegResult) {
 			case $dbAuth::REGISTRATION_EMAIL_TAKEN:
-				return $this->getMyUrl('register',
-						array('err_msg'=>$this->getRes('account/msg_acctexists/'.$this->getRes('account/label_email'))));
+				$v->addUserMsg($this->getRes('account/msg_acctexists/'.$this->getRes('account/label_email')),$v::USER_MSG_ERROR);
+				return $this->getMyUrl('register');
 			case $dbAuth::REGISTRATION_NAME_TAKEN:
-				return $this->getMyUrl('register',
-						array('err_msg'=>$this->getRes('account/msg_acctexists/'.$this->getRes('account/label_name'))));
+				$v->addUserMsg($this->getRes('account/msg_acctexists/'.$this->getRes('account/label_name')),$v::USER_MSG_ERROR);
+				return $this->getMyUrl('register');
 			default: //create new acct
 				$theNewAcct['account_name'] = $this->scene->$userKey;
 				$theNewAcct['phone'] = $this->scene->phone;

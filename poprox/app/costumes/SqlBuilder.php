@@ -308,12 +308,13 @@ class SqlBuilder extends BaseCostume {
 	}
 	
 	/**
-	 * Params should be ordered array with ? params OR associative array with :label params.
+	 * SQL Params should be ordered array with ? params OR associative array with :label params.
+	 * @param array $aListOfParamValues - array of arrays of values for the parameters in the SQL statement.
 	 * @throws DbException if there is an error.
 	 * @see \BitsTheater\Model::execMultiDML();
 	 */
-	public function execMultiDML() {
-		return $this->myModel->execMultiDML($this->mySql, $this->myParams, $this->myParamTypes);
+	public function execMultiDML($aListOfParamValues) {
+		return $this->myModel->execMultiDML($this->mySql, $aListOfParamValues, $this->myParamTypes);
 	}
 	
 	/**

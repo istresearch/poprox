@@ -269,8 +269,12 @@ class Install extends Actor {
 
 	public function auth1() {
 		if (!$this->scene->checkInstallPw()) return $this->scene->getSiteURL();
-		$this->scene->next_action = $this->scene->getSiteURL('install/auth2');
-		$this->scene->auth_types = $this->getAuthTypes();
+		if (!$this->director->getProp('Auth')) {
+			$this->scene->next_action = $this->scene->getSiteURL('install/auth2');
+			$this->scene->auth_types = $this->getAuthTypes();
+		} else {
+			return $this->scene->getSiteURL('install/setupDb');
+		}
 	}
 
 	protected function installAuth($aAuthType) {
