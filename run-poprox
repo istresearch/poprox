@@ -1,10 +1,6 @@
 #!/bin/bash
 
-envsubst <<EOF
-FQDN is $FQDN
-EOF
-
-CONFDIR=/var/www/html/poprox/app/configs/$FQDN
+CONFDIR=/var/www/html/poprox/app/configs/anyhost
 mkdir -p $CONFDIR
 
 envsubst > $CONFDIR/dbconn-memex_ht.ini <<EOF

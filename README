@@ -3,7 +3,6 @@ poprox
 
 docker build -t poprox .
 docker run -it --rm -p 80:80 --name poprox-run \
--e FQDN=<hostname> \
 -e MEMEXDBHOST=<memex_ht database hostname> \
 -e MEMEXDBUSER=<memex_ht database username> \
 -e MEMEXDBPASS=<memex_ht database password> \
