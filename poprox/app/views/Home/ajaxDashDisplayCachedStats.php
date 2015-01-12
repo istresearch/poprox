@@ -18,7 +18,7 @@ function dash_cnvUtcToLocal($aElemId, $aTimestamp) {
 	return 'z2l("'.$aElemId.'",'.$theTs->getTimestamp().');'."\n";
 }
 
-$w .= '<table id="tbl_roxydb_stats" class="data-display">';
+$w .= '<table id="tbl_roxydb_stats" class="db-display">';
 
 //header row1
 $r = '<tr class="rowh">';

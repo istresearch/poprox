@@ -28,7 +28,7 @@ if (!empty($v->results)) {
 		$w .= $thePager;
 	}
 	
-	$w .= '<table id="qrox-results" class="data-display">';
+	$w .= '<table id="qrox-results" class="db-display">';
 
 	$w .= '<tr class="rowh">';
 	$w .= '<th>ID</th><th>Phone</th><th>Text</th><th>Levenshtein Distance</th>';

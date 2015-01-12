@@ -58,8 +58,7 @@ class Account extends Actor {
 		$userKey = $this->scene->getUsernameKey().'_reg';
 		$pwKey = $this->scene->getPwInputKey().'_reg';
 		$theRegCode = strtoupper($this->scene->reg_code);
-		if ($aTask==='new' && ($theRegCode===$this->getAppId() || $theRegCode===$this->getRes('account/text_reg_cht_code')) &&
-				$this->scene->$pwKey===$this->scene->password_confirm) {
+		if ($aTask==='new' && !empty($theRegCode) && $this->scene->$pwKey===$this->scene->password_confirm) {
 			$dbAuth = $this->getProp('Auth');
 			$theRegResult = $dbAuth->canRegister($this->scene->$userKey,$this->scene->email);
 			switch ($theRegResult) {
@@ -74,13 +73,12 @@ class Account extends Actor {
 				$theNewAcct['phone'] = $this->scene->phone;
 				$theNewId = $dbAccounts->add($theNewAcct);
 				if (!empty($theNewId)) {
-					$theDefaultGroup = Groups::GROUPTYPE_guest;
-					$verified_ts = null;
-					if ($theRegCode===$this->getAppId()) {
-						$theDefaultGroup = Groups::GROUPTYPE_privileged;
-						$verified_ts = $dbAccounts->utc_now();
-					} elseif ($theRegCode===$this->getRes('account/text_reg_cht_code')) {
-						$theDefaultGroup = Groups::GROUPTYPE_restricted;
+					//see if there is a registration code that maps to a particular group
+					$dbGroups = $this->getProp('Groups');
+					$theDefaultGroup = $dbGroups->findGroupIdByRegCode($this->getAppId(), $theRegCode);
+					if ($theDefaultGroup==0) {
+						$verified_ts = null;
+					} else {
 						$verified_ts = $dbAccounts->utc_now();
 					}
 					$theNewAcct = array(
@@ -157,7 +155,7 @@ class Account extends Actor {
 			if ($theAcctId==$this->director->account_info['account_id'] || $this->isAllowed('account','modify')) {
 				$theOldEmail = trim($this->scene->ticket_email);
 				$theNewEmail = trim($this->scene->email);
-				/* !== returned TRUE, === retruend FALSE, but strcmp() returned 0 (meaning they are the same) O.o
+				/* !== returned TRUE, === returned FALSE, but strcmp() returned 0 (meaning they are the same) O.o
 				$b1 = ($theOldEmail!==$theNewEmail);
 				$b2 = ($theOldEmail===$theNewEmail);
 				$b3 = (strcmp($theOldEmail,$theNewEmail)!=0);

@@ -25,6 +25,7 @@ use \PDO;
 
 /**
  * Models can use this class to help build their SQL queries / PDO statements.
+ * Class built using MySQL, but hope to expand it so it tolerates others, too.
  */
 class SqlBuilder extends BaseCostume {
 	/**
@@ -89,7 +90,7 @@ class SqlBuilder extends BaseCostume {
 	 * Mainly used internally to get param data.
 	 * @param string $aDataKey - array key or property name used to retrieve
 	 * data set by the setDataSet() method.
-	 * @param string $aDefaultValue - default value if data is null.
+	 * @param string $aDefaultValue - (optional) default value if data is null.
 	 * @return mixed Returns the data value.
 	 * @see \BitsTheater\costumes\SqlBuilder::setDataSet()
 	 */
@@ -102,15 +103,11 @@ class SqlBuilder extends BaseCostume {
 					$theData = $theDataSet[$aDataKey];
 				}
 			} else if (is_object($theDataSet)) {
-				$theData = $theDataSet->$aDataKey;
-				if (!isset($theData) && isset($aDefaultValue)) {
-					$theData = $aDefaultValue;
+				if (isset($theDataSet->$aDataKey)) {
+					$theData = $theDataSet->$aDataKey;
 				}
 			} else if (is_string($theDataSet)) {
 				$theData = $theDataSet;
-				if (!isset($theData) && isset($aDefaultValue)) {
-					$theData = $aDefaultValue;
-				}
 			}
 		}
 		//see if there is a data processing function and call it
@@ -118,6 +115,29 @@ class SqlBuilder extends BaseCostume {
 			$theData = $this->myParamFuncs[$aDataKey]($this, $aDataKey, $theData);
 		}
 		return $theData;
+	}
+	
+	/**
+	 * Mainly used internally by addParamIfDefined to determine if data param exists.
+	 * @param string $aDataKey - array key or property name used to retrieve
+	 * data set by the setDataSet() method.
+	 * @return boolean Returns TRUE if data key is defined (or param function exists).
+	 * @see \BitsTheater\costumes\SqlBuilder::setDataSet()
+	 */
+	public function isDataKeyDefined($aDataKey) {
+		//see if there is a data processing function
+		$bResult = (isset($this->myParamFuncs[$aDataKey]));
+		if (!$bResult && isset($this->myDataSet)) {
+			$theDataSet = $this->myDataSet;
+			if (is_array($theDataSet)) {
+				$bResult = array_key_exists($aDataKey, $theDataSet);
+			} else if (is_object($theDataSet)) {
+				$bResult = property_exists($theDataSet, $aDataKey);
+			} else if (is_string($theDataSet)) {
+				$bResult = true;
+			}
+		}
+		return $bResult;
 	}
 	
 	/**
@@ -139,6 +159,9 @@ class SqlBuilder extends BaseCostume {
 	
 	/**
 	 * Sets the param value and param type, but does not affect the SQL string.
+	 * @param string $aParamKey - the field/param name.
+	 * @param string $aParamValue - the param value to use.
+	 * @param number $aParamType - (optional) PDO::PARAM_* integer constant (STR is default).
 	 * @return \BitsTheater\costumes\SqlBuilder Returns $this for chaining.
 	 */
 	public function setParam($aParamKey, $aParamValue, $aParamType=null) {
@@ -194,18 +217,104 @@ class SqlBuilder extends BaseCostume {
 	}
 	
 	/**
+	 * Adds to the SQL string as a set of values; e.g. "(datakey_1,datakey_2, .. datakey_N)"
+	 * along with param values set for each of the keys.
+	 * Honors the ParamPrefix and ParamOperator properties.
+	 * @param string $aFieldName - the field name.
+	 * @param string $aDataKey - array key or property name used to retrieve
+	 * data set by the setDataSet() method; NOTE: $aDataKeys will have _$i from 1..count() appended.
+	 * @param array $aDataValuesList - the value list to use as param values.
+	 * @param number $aParamType - (optional) PDO::PARAM_* integer constant (STR is default).
+	 * @return \BitsTheater\costumes\SqlBuilder Returns $this for chaining.
+	 */
+	public function mustAddParamAsList($aFieldName, $aDataKey, $aDataValuesList, $aParamType=PDO::PARAM_STR) {
+		if (is_array($aDataValuesList) && !empty($aDataValuesList)) {
+			$this->mySql .= $this->myParamPrefix.$this->field_quotes.$aFieldName.$this->field_quotes.$this->myParamOperator.'(';
+			$theList = $aDataValuesList;
+			for ($i=0; $i < count($theList); $i++) {
+				$theDataKey = $aDataKey.'_'.$i;
+				$this->mySql .= ':'.$theDataKey.(($i < count($theList)-1) ? ',' : ')');
+				$this->setParam($theDataKey,$theList[$i],$aParamType);
+			}
+			return $this;
+		} else {
+			return $this->mustAddParam($aDataKey, null, $aParamType);
+		}
+	}
+	
+	/**
+	 * Internal method to affect SQL statment with a param and its value.
+	 * @param string $aFieldName - the field name.
+	 * @param string $aParamKey - the param name.
+	 * @param string $aParamValue - the param value to use.
+	 * @param number $aParamType - PDO::PARAM_* integer constant.
+	 */
+	protected function addingParam($aFieldName, $aParamKey, $aParamValue, $aParamType) {
+		if (!is_array($aParamValue) || empty($aParamValue)) {
+			$this->mySql .= $this->myParamPrefix.$this->field_quotes.$aFieldName.$this->field_quotes.$this->myParamOperator.':'.$aParamKey;
+			$this->setParam($aParamKey,$aParamValue,$aParamType);
+		} else {
+			$saveParamOp = $this->myParamOperator;
+			switch (trim($this->myParamOperator)) {
+				case '=':
+					$this->myParamOperator = ' IN ';
+					break;
+				case '<>':
+					$this->myParamOperator = ' NOT IN ';
+					break;
+			}//switch
+			$this->mustAddParamAsList($aFieldName, $aParamKey, $aParamValue, $aParamType);
+			$this->myParamOperator = $saveParamOp;
+		}
+	}
+	
+	/**
 	 * Parameter must go into the SQL string regardless of NULL status of data.
+	 * @param string $aFieldName - field name to use.
 	 * @param string $aDataKey - array key or property name used to retrieve
 	 * data set by the setDataSet() method.
 	 * @param string $aDefaultValue - (optional) default value if data is null.
-	 * @param string $aParamType - (optional) PDO::PARAM_* integer constant
-	 * of param type (STR is default).
+	 * @param number $aParamType - (optional) PDO::PARAM_* integer constant (STR is default).
+	 * @return \BitsTheater\costumes\SqlBuilder Returns $this for chaining.
+	 */
+	public function mustAddFieldAndParam($aFieldName, $aDataKey, $aDefaultValue=null, $aParamType=PDO::PARAM_STR) {
+		$theData = $this->getDataValue($aDataKey, $aDefaultValue);
+		$this->addingParam($aFieldName, $aDataKey, $theData, $aParamType);
+		return $this;
+	}
+	
+	/**
+	 * Parameter must go into the SQL string regardless of NULL status of data.
+	 * @param string $aDataKey - array key or property name used to retrieve
+	 * data set by the setDataSet() method; this doubles as the field name.
+	 * @param string $aDefaultValue - (optional) default value if data is null.
+	 * @param number $aParamType - (optional) PDO::PARAM_* integer constant (STR is default).
 	 * @return \BitsTheater\costumes\SqlBuilder Returns $this for chaining.
 	 */
 	public function mustAddParam($aDataKey, $aDefaultValue=null, $aParamType=PDO::PARAM_STR) {
 		$theData = $this->getDataValue($aDataKey, $aDefaultValue);
-		$this->mySql .= $this->myParamPrefix.$this->field_quotes.$aDataKey.$this->field_quotes.$this->myParamOperator.':'.$aDataKey;
-		return $this->setParam($aDataKey,$theData,$aParamType);
+		$this->addingParam($aDataKey, $aDataKey, $theData, $aParamType);
+		return $this;
+	}
+	
+	/**
+	 * Parameter only gets added to the SQL string if data is not NULL. This differs from
+	 * addParam() in that you specify the field name and param name to use, in case they
+	 * need to be different for some reason, like if you need to update an ID field. <br>
+	 * e.g. <code>UPDATE myIDfield=:new_myIDfield_data WHERE myIDfield=:myIDfield</code>
+	 * @param string $aFieldName - field name to use.
+	 * @param string $aDataKey - array key or property name used to retrieve
+	 * data set by the setDataSet() method.
+	 * @param string $aDefaultValue - (optional) default value if data is null.
+	 * @param number $aParamType - (optional) PDO::PARAM_* integer constant (STR is default).
+	 * @return \BitsTheater\costumes\SqlBuilder Returns $this for chaining.
+	 */
+	public function addFieldAndParam($aFieldName, $aDataKey, $aDefaultValue=null, $aParamType=PDO::PARAM_STR) {
+		$theData = $this->getDataValue($aDataKey, $aDefaultValue);
+		if (isset($theData)) {
+			$this->addingParam($aFieldName, $aDataKey, $theData, $aParamType);
+		}
+		return $this;
 	}
 	
 	/**
@@ -213,15 +322,32 @@ class SqlBuilder extends BaseCostume {
 	 * @param string $aDataKey - array key or property name used to retrieve
 	 * data set by the setDataSet() method.
 	 * @param string $aDefaultValue - (optional) default value if data is null.
-	 * @param string $aParamType - (optional) PDO::PARAM_* integer constant
-	 * of param type (STR is default).
+	 * @param number $aParamType - (optional) PDO::PARAM_* integer constant (STR is default).
 	 * @return \BitsTheater\costumes\SqlBuilder Returns $this for chaining.
 	 */
 	public function addParam($aDataKey, $aDefaultValue=null, $aParamType=PDO::PARAM_STR) {
 		$theData = $this->getDataValue($aDataKey, $aDefaultValue);
 		if (isset($theData)) {
-			$this->mySql .= $this->myParamPrefix.$this->field_quotes.$aDataKey.$this->field_quotes.$this->myParamOperator.':'.$aDataKey;
-			$this->setParam($aDataKey,$theData,$aParamType);
+			$this->addingParam($aDataKey, $aDataKey, $theData, $aParamType);
+		}
+		return $this;
+	}
+
+	/**
+	 * Parameter gets added to the SQL string if data key exists in data set,
+	 * regardless of empty(value).
+	 * @param string $aDataKey - array key or property name used to retrieve
+	 * data set by the setDataSet() method.
+	 * @param string $aValueIfEmpty - (optional) value to use if empty()==true.
+	 * @param number $aParamType - (optional) PDO::PARAM_* integer constant (STR is default).
+	 * @return \BitsTheater\costumes\SqlBuilder Returns $this for chaining.
+	 */
+	public function addParamIfDefined($aDataKey, $aValueIfEmpty=null, $aParamType=PDO::PARAM_STR) {
+		if ($this->isDataKeyDefined($aDataKey)) {
+			$theData = $this->getDataValue($aDataKey);
+			if (empty($theData))
+				$theData = $aValueIfEmpty;
+			$this->addingParam($aDataKey, $aDataKey, $theData, $aParamType);
 		}
 		return $this;
 	}
@@ -250,7 +376,7 @@ class SqlBuilder extends BaseCostume {
 	}
 	
 	/**
-	 * Adds a string to the SQL prepended with a space (just in case).
+	 * Adds a string to the SQL prefixed with a space (just in case).
 	 * @param string $aStr - patial SQL sting to add.
 	 * @return \BitsTheater\costumes\SqlBuilder Returns $this for chaining.
 	 */
@@ -264,13 +390,70 @@ class SqlBuilder extends BaseCostume {
 	 * @param string $aParamKey - the parameter key.
 	 * @param Function $aParamFunc - a function used to process the
 	 * data (even a default value) of the form:<br>
-	 * func($thisSqlBuilder, $paramKey $currentParamValue) and returns
+	 * func($thisSqlBuilder, $paramKey, $currentParamValue) and returns
 	 * the processed value.
-	 * @return \BitsTheater\costumes\SqlBuilder
+	 * @return \BitsTheater\costumes\SqlBuilder Returns $this for chaining.
 	 */
 	public function setParamDataHandler($aParamKey, $aParamFunc) {
 		if (!empty($aParamKey)) {
 			$this->myParamFuncs[$aParamKey] = $aParamFunc;
+		}
+		return $this;
+	}
+
+	/**
+	 * Apply an externally defined set of WHERE field clauses and param values
+	 * to our SQL (excludes the "WHERE" keyword).
+	 * @param SqlBuilder $aFilter - External SqlBuilder object (can be NULL).
+	 * @return \BitsTheater\costumes\SqlBuilder Returns $this for chaining.
+	 */
+	public function applyFilter(SqlBuilder $aFilter=null) {
+		if (!empty($aFilter)) {
+			if (!empty($aFilter->mySql)) {
+				$this->mySql .= $this->myParamPrefix.$aFilter->mySql;
+			}
+			if (!empty($aFilter->myParams)) {
+				foreach ($aFilter->myParams as $theFilterParamKey => $theFilterParamValue) {
+					$this->setParam($theFilterParamKey, $theFilterParamValue, $aFilter->myParamTypes[$theFilterParamKey]);
+				}
+			}
+		}
+		return $this;
+	}
+	
+	/**
+	 * If sort list is defined and its contents are also contained
+	 * in the non-empty $aFieldList, then apply the sort order as neccessary.
+	 * @see \BitsTheater\costumes\SqlBuilder::applyOrderByList() which this method is an alias of.
+	 * @param array $aSortList - keys are the fields => values are 'ASC' or 'DESC' with null='ASC'.
+	 * @param array/string $aFieldList - the list or comma string of fieldnames.
+	 * @return \BitsTheater\costumes\SqlBuilder Returns $this for chaining.
+	 */
+	public function applySortList($aSortList, $aFieldList=null) {
+		return $this->applyOrderByList($aSortList, $aFieldList);
+	}
+	
+	/**
+	 * If order by list is defined and its contents are also contained
+	 * in the non-empty $aFieldList, then apply the sort order as neccessary.
+	 * @param array $aOrderByList - keys are the fields => values are 'ASC' or 'DESC' with null='ASC'.
+	 * @return \BitsTheater\costumes\SqlBuilder Returns $this for chaining.
+	 */
+	public function applyOrderByList($aOrderByList) {
+		if (!empty($aOrderByList)) {
+			$theSortKeyword = 'ORDER BY';
+			//other db types may use a diff reserved keyword, set that here
+			//...
+			$this->add($theSortKeyword);
+			
+			$theOrderByList = $aOrderByList;
+			if (!isset($theOrderByList[0])) {
+				$theOrderByList = array();
+				foreach ($aOrderByList as $theField => $theSortOrder) {
+					$theOrderByList[] = $theField.((!empty($theSortOrder)) ? ' '.$theSortOrder : '');
+				}
+			}
+			$this->add(implode(',', $theOrderByList));
 		}
 		return $this;
 	}

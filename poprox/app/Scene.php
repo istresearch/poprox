@@ -20,6 +20,7 @@ use com\blackmoonit\AdamEve as BaseScene;
 use com\blackmoonit\exceptions\IllegalArgumentException;
 use com\blackmoonit\Strings;
 use com\blackmoonit\Widgets;
+use \Exception;
 use \ReflectionClass;
 use \ReflectionMethod;
 use BitsTheater\Director;
@@ -318,7 +319,7 @@ class Scene extends BaseScene {
 			return $aFilePath.'.php';
 	}
 
-	public function includeMyHeader() {
+	public function includeMyHeader($aExtraHeaderHtml=null) {
 		$myHeader = $this->page_header;
 		if (!file_exists($myHeader))
 			$myHeader = $this->app_header;
@@ -395,9 +396,9 @@ class Scene extends BaseScene {
 	 * @return string Returns the site mode config setting.
 	 */
 	public function getSiteMode() {
-		if ($this->_config)
+		if ($this->_config) {
 			return $this->_config['site/mode'];
-		else
+		} else
 			return self::SITE_MODE_NORMAL;
 	}
 	
@@ -428,13 +429,15 @@ class Scene extends BaseScene {
 
 	/**
 	 * Render a fragment and return the string rather than automatically pass it to the output.
-	 * @param string $anActorName
-	 * @param string $anAction
-	 * @param array $args
+	 * @param string $anActorName - the actor to instantiate and use.
+	 * @param string $anAction - the actor's method to call
+	 * @param array $_ - other params that will be passed on to Director::cue().
 	 */
 	
-	public function cueActor($anActorName, $anAction, $args=array()) {
-		return $this->_director->cue($this,$anActorName,$anAction,$args);
+	public function cueActor($anActorName, $anAction, $_=null) {
+		$args = func_get_args();
+		array_unshift($args,$this);
+		return call_user_func_array(array($this->_director,'cue'), $args);
 	}
 	
 	/**
@@ -549,7 +552,7 @@ class Scene extends BaseScene {
 			return;
 		if (empty($aLocation))
 			$aLocation = BITS_LIB;
-		return Strings::format('<script type="text/javascript" src="%s/%s"></script>'."\n", $aLocation, $aFilename);
+		return Strings::format('<script type="text/javascript" src="%s/%s"></script>', $aLocation, $aFilename);
 	}
 	
 	/**
@@ -558,7 +561,7 @@ class Scene extends BaseScene {
 	 * @param string $aLocation - URL to prepend to $aFilename, if NULL or not supplied, defaults to BITS_LIB.
 	 */
 	public function loadScript($aFilename, $aLocation=null) {
-		print($this->getScriptTag($aFilename, $aLocation));
+		print($this->getScriptTag($aFilename, $aLocation)."\n");
 	}
 	
 	/**
@@ -763,6 +766,25 @@ class Scene extends BaseScene {
 		}
 	
 		return $thePager;
+	}
+	
+	/**
+	 * Useful for debugging sometimes.
+	 * @return string - returns GET and POST vars.
+	 */
+	public function getRequestVars() {
+		$s = 'GET={ ';
+		//grab all _GET vars and incorporate them
+		foreach ($_GET as $key => $val) {
+			$s .= $key.'='.$val.'; ';
+		}
+		$s .= '}, POST={ ';
+		//grab all _POST vars and incorporate them
+		foreach ($_POST as $key => $val) {
+			$s .= $key.'='.$val.'; ';
+		}
+		$s .= '}';
+		return $s;
 	}
 	
 	

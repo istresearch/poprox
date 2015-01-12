@@ -11,6 +11,7 @@ use ISTResearch_Roxy\models\MemexHt;
 	/* @var $dbMemexHt MemexHt */
 use ISTResearch_Roxy\models\RoxyStats;
 	/* @var $dbRoxyStats RoxyStats */
+use com\blackmoonit\Strings;
 {//namespace begin
 
 class Home extends Actor {
@@ -115,6 +116,33 @@ class Home extends Actor {
 	}
 	*/
 	
+	public function viewChangelog() {
+		//shortcut variable $v also in scope in our view php file.
+		$v =& $this->scene;
+		
+		$v->results = array();
+		$theChangelogFile = BITS_PATH.'CHANGELOG';
+		$theLogContents = file($theChangelogFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES );
+		//$this->debugPrint('log='.$this->debugStr($theLogContents));
+		if (!empty($theLogContents)) {
+			$theLogEntry = array();
+			for ($i=0; $i<count($theLogContents); $i++) {
+				if (!Strings::beginsWith($theLogContents[$i], '*')) {
+					if (!empty($theLogEntry['title'])) {
+						$v->results[] = $theLogEntry;
+						$theLogEntry = array();
+					}
+					$theLogEntry['title'] = $theLogContents[$i];
+				} else {
+					$theLogEntry['log'][] = Strings::strstr_after($theLogContents[$i], '* ');
+				}
+			}//for
+			if (!empty($theLogEntry['title'])) {
+				$v->results[] = $theLogEntry;
+			}
+		}//if log contents
+		
+	}
 	
 }//end class
 

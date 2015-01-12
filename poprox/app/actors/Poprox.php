@@ -39,10 +39,10 @@ class Poprox extends Actor {
 				if (!empty($theRegion)) {
 					$theRoxyId = $dbSiteBackpage->getRoxyId($theAdId, $theRegion);
 					if (empty($theRoxyId)) {
-						$v->addUserMsg($v->getRes('site_backpage/msg_adid_not_found/'.$theAdId.'/'.$theRegion));
+						$v->addUserMsg($v->getRes('roxy/msg_adid_not_found/'.$theAdId.'/'.$theRegion));
 					}
 				} else {
-					$v->addUserMsg($v->getRes('site_backpage/msg_region_unknown'),$v::USER_MSG_WARNING);
+					$v->addUserMsg($v->getRes('roxy/msg_region_unknown'),$v::USER_MSG_WARNING);
 				}
 				break;
 			default:

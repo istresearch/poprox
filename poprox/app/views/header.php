@@ -11,30 +11,6 @@ print('<html xmlns="http://www.w3.org/1999/xhtml">'."\n");
 print('<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">'."\n");
 print('<title>'.$v->getRes('website/header_meta_title').'</title>'."\n");
 
-//jQuery
-if ($v->getSiteMode() != $v::SITE_MODE_DEMO)
-	print('<script src="//code.jquery.com/jquery-1.10.1.min.js"></script>'."\n");
-else
-	$v->loadScript('jquery/jquery-1.7.min.js');
-
-//jQuery-ui
-//$v->loadCSS('jquery-ui/jquery-ui.css');
-//$v->loadScript('jquery-ui/jquery-ui-1.8.custom.min.js');
-
-//apycom menu (needs to be after jQuery, else use the jquery sublib)
-$v->loadCSS('apycom/menu.css');
-//$v->loadScript('apycom/jquery.js'); //do not need if already using jQuery
-$v->loadScript('apycom/menu.js');
-
-$theJsList = $v->getRes('website/js_load_list');
-if (!empty($theJsList)) {
-	foreach ($theJsList as $theJsFile => $theJsPath) {
-		$v->loadScript($theJsFile,$theJsPath);
-	}//foreach
-} else {
-	$v->loadScript('com/blackmoonit/jBits/jbits_mini.js');
-}
-
 //Theme
 $theCssList = $v->getRes('website/css_load_list');
 if (!empty($theCssList)) {
@@ -45,9 +21,27 @@ if (!empty($theCssList)) {
 	$v->loadCSS('bits.css', BITS_RES.'/style');
 }
 
+$theLibsJsList = $v->getRes('website/js_libs_load_list');
+if (!empty($theLibsJsList)) {
+	foreach ($theLibsJsList as $theJsFile) {
+		$v->loadScript($theJsFile);
+	}//foreach
+} else {
+	$v->loadScript('com/blackmoonit/jBits/jbits_mini.js');
+}
+
+$theJsList = $v->getRes('website/js_load_list');
+if (!empty($theJsList)) {
+	foreach ($theJsList as $theJsFile => $theJsPath) {
+		$v->loadScript($theJsFile,$theJsPath);
+	}//foreach
+}
+
+print($aExtraHeaderHtml."\n");
+
 print("</head>\n");
+$w = '<body>'."\n";
 //=============================================================================
-$w .= '<body>'."\n";
 $w .= '<table id="container-header">'."\n";
 $w .= '<tr>'."\n";
 
@@ -70,12 +64,19 @@ $w .= '<span class="subtitle">'.$v->getRes('website/header_subtitle').'</span>';
 $w .= '</td>'."\n";
 
 //login info
-$w .= '<td class="auth-area">'."\n";
+$w .= '<td class="auth-area">';
+$w .= '<a href="'.$v->getSiteURL('home/viewChangelog').'" target="_blank">v'.$v->getRes('website/version').'</a><br><br>';
+$w .= '<p>';
 $w .= $recite->cueActor('Account','buildAuthArea');
-$w .= '</td>'."\n";
+$w .= '</p>';
+$w .= '</td>';
 
 $w .= '</tr>'."\n";
 $w .= '</table>'."\n";
+
+print($w);
+$w = '';
+//=============================================================================
 
 //menu
 $w .= '<table id="container-menu">'."\n";

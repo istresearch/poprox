@@ -16,7 +16,7 @@ $theTsId = 'client-spider-timestamp';
 $w .= '<br />Locally, that would be: <span id="'.$theTsId.'">Calculating...</span>';
 $jsCode .= Widgets::cnvUtcTs2LocalStr($theTsId, $v->results[0]['updated_on']);
 $w .= '</h3>';
-$w .= '<table class="data-display">';
+$w .= '<table class="db-display">';
 $theHeaderRow = '<tr class="rowh"><th>id</th><th>Domain</th><th>Spider</th><th>PID</th><th>Runtime</th>'."\n";
 foreach ((array) $v->results as $theRow) {
 	$bIsMasterSpiderRow = Strings::endsWith($theRow['name'],'_master');

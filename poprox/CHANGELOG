@@ -1,0 +1,13 @@
+2014-Nov-25 v2.3.0
+* Added support for versioning the website.
+* Changed <code>data-*</code> classes to <code>db-*</code> to avoid HTML5 class collisions.
+* Added support for automatic website db schema changes.
+* Added support for enhanced usergroup creation and participation.
+* Added UI to manage usergroups.
+* Added SQL helper class to make sophisticated filtering and ordering easier.
+* Added Bootstrap and Bootbox JQuery libraries for UI and to enable easy popup dialog windows. 
+* Added website version link and display of the Changelog.
+2014-11-05
+* Added support for forced HTTPS in docker container
+2014-11-04
+* Start of changelog

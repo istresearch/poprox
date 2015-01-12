@@ -9,7 +9,7 @@ $jsCode = <<<EOD
 
 EOD;
 
-$w .= '<table id="tbl_roxydb_stats" class="data-display tbl_memexht_stats">';
+$w .= '<table id="tbl_roxydb_stats" class="db-display tbl_memexht_stats">';
 
 $theRow = $v->results;
 $theSourceId = $v->source_row['id'];

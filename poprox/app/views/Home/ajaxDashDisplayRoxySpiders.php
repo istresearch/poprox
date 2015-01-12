@@ -23,7 +23,7 @@ $w .= '<h3>Spiders monitered as of: '.$theUpdateOn->format('D, M d @ H:i:s T');
 $w .= '<br />Locally, that would be: <span id="client-spider-timestamp"></span>';
 $jsCode .= dash_cnvUtcToLocal('client-spider-timestamp', $v->results[0]['updated_on']);
 $w .= '</h3>';
-$w .= '<table class="data-display">';
+$w .= '<table class="db-display">';
 $theHeaderRow = '<tr class="rowh"><th>id</th><th>Domain</th><th>Spider</th><th>PID</th><th>Runtime</th>'."\n";
 foreach ((array) $v->results as $theRow) {
 	$bIsMasterSpiderRow = Strings::endsWith($theRow['name'],'_indexer');

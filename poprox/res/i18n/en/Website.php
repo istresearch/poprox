@@ -4,6 +4,10 @@ use BitsTheater\res\Website as BaseResources;
 {//begin namespace
 
 class Website extends BaseResources {
+	public $feature_id = 'IST Research: Poprox website';
+	public $version_seq = 1;	//build number, inc if db models need updating, override this in descendant
+	public $version = '2.3.0';	//displayed version text, override this in descendant
+	
 	public $header_meta_title = 'Roxy';
 	public $header_title = 'Roxy';
 	public $header_subtitle = 'Turn on the spotlight.';

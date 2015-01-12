@@ -16,22 +16,33 @@
  */
 
 namespace BitsTheater\res;
+use BitsTheater\res\CorePermissions as BaseResources;
 {//begin namespace
 
-class Permissions extends Resources {
+class Permissions extends BaseResources {
 
-	public $right_value_keys = array('allow','disallow','deny');
+	public $enum_my_namespaces = array(
+			'roxy',
+	);
 	
-	public $namespace_keys = array('auth','config','accounts','home',);
-			
-	public $auth_keys = array('modify','create','delete');
+	public $enum_roxy = array(
+			'poprox',
+			'dashboard',
+			'monitoring',
+			'mtask',
+			'view_data',
+			'run_reports',
+	);
 	
-	public $config_keys = array('modify');
+	/**
+	 * Some resources need to be initialized by running code rather than a static definition.
+	 */
+	public function setup($aDirector) {
+		$this->res_array_merge($this->enum_namespace, $this->enum_my_namespaces);
+		//parent can handle the rest once "enum_namespace" is updated
+		parent::setup($aDirector);
+	}
 	
-	public $accounts_keys = array('modify','delete'); //anyone can create/register a new account
-			
-	public $home_keys = array('view',);
-
 }//end class
 
 }//end namespace

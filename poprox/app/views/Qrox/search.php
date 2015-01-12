@@ -30,7 +30,7 @@ $w .= "<br />\n";
 
 if (!empty($v->results)) {
 	$w .= '<button onClick="selectElement(\'qrox-results\');">Select Results</button>';
-	$w .= '<table id="qrox-results" class="data-display">';
+	$w .= '<table id="qrox-results" class="db-display">';
 
 	foreach ((array) $v->results as $theResultsBySource => $theResultSet) {
 		$theResultByWhom = $v->site_display_names[$theResultsBySource];

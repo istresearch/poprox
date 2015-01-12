@@ -38,7 +38,7 @@ if (!empty($v->results)) {
 		$w .= $thePager;
 	}
 	
-	$w .= '<table id="qrox-results" class="data-display">';
+	$w .= '<table id="qrox-results" class="db-display">';
 
 	$w .= '<tr class="rowh"><th>Memex ID</th><th>Source</th><th>Roxy Link</th><th>Site Link</th><th>Phone</th></tr>';
 	foreach((array) $v->results as $theResultRow) {

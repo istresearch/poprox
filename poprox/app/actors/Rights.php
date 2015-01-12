@@ -44,6 +44,9 @@ class Rights extends Actor {
 		$v->groups = Arrays::array_column_as_key($dbAuth->getGroupList(),'group_id');
 		$this->director->returnProp($dbAuth);
 
+		//TODO need a better UI for dealing with group reg codes
+		$dbGroups = $this->getProp('Groups');
+		$v->group_reg_codes = $dbGroups->getGroupRegCodes();
 	}
 	
 	public function group($aGroupId) {
@@ -97,7 +100,7 @@ class Rights extends Actor {
 			$dbGroups->createGroup($v->group_name, $v->group_parent, $v->group_reg_code);
 		}
 	}
-		
+	
 }//end class
 
 }//end namespace

@@ -79,10 +79,12 @@ class Auth extends BaseModel {
 		}
 	}
 	
+	protected function exists($aTableName=null) {
+		return parent::exists( empty($aTableName) ? $this->tnAuth : $aTableName );
+	}
+	
 	public function isEmpty($aTableName=null) {
-		if ($aTableName==null)
-			$aTableName = $this->tnAuth;
-		return parent::isEmpty($aTableName);
+		return parent::isEmpty( empty($aTableName) ? $this->tnAuth : $aTableName );
 	}
 	
 	public function getAuthByEmail($aEmail) {
@@ -266,7 +268,7 @@ class Auth extends BaseModel {
 		$this->director->returnProp($dbGroups);
 		return $theResult;
 	}
-
+	
 }//end class
 
 }//end namespace

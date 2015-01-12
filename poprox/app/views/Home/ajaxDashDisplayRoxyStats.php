@@ -18,7 +18,7 @@ function dash_cnvUtcToLocal($aElemId, $aTimestamp) {
 	return 'z2l("'.$aElemId.'",'.$theTs->getTimestamp().');'."\n";
 }
 
-$w .= '<table id="tbl_roxy_stats" class="data-display">';
+$w .= '<table id="tbl_roxy_stats" class="db-display">';
 foreach ((array) $v->results as $theSiteModel => $theSiteRows) {
 	$theSiteName = (Strings::beginsWith($theSiteModel,'Site')) ? $v->getProp($theSiteModel)->getSiteDisplayName() : $theSiteModel;
 	$w .= '<tr class="rowh"><th>'.$theSiteName.'</th><th>Last Import (Local)</th>';
