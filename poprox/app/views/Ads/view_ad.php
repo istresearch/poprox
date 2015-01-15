@@ -22,6 +22,31 @@ function hideElement(id) {
 }
 
 EOD;
+/*
+ * Removed the following JavaScript because of Cross-site AJAX rules preventing it
+ *
+function calc_ht_classifier_score() {
+	url = "http://localhost:8000";
+	bdg_sel = "#ht_classifier_score";
+	ad_text_sel = "#memex_ad_text";
+	thePostData = $(ad_text_sel).text();
+	$.ajax({'url': url,	type: 'post', dataType: 'text',
+		data: thePostData,
+		success: function(aData) {
+			$(bdg_sel).text(aData);
+		}
+		,
+		error: function(jqXHR, aTextStatus, aErrorThrown){
+			console.log(aTextStatus, aErrorThrown);
+		}
+	});
+}
+		
+$(document).ready(function() {
+	calc_ht_classifier_score();
+});
+
+ */
 
 $w = $v->createJsTagBlock($jsCode);
 $jsCode = ''; //reset so code downstream will not duplicate the above scripts
@@ -99,6 +124,12 @@ if (!empty($theData)) {
 	
 	//outer table [photo column, data column], data column is 2 tables: title info, fixed / attribute info
 	$w .= '<table class="memex-ad" width="95%">';
+	$theHTscore = $v->getHTscore($theAdText);
+	if (!empty($theHTscore)) {
+		$w .= '<tr><td colspan="2" style="font-size: larger;">';
+		$w .= '<p>HT Classifier Score: <span class="badge" id="ht_classifier_score" style="min-width: 3em">'.$theHTscore.'</span></p>';
+		$w .= '</td></tr>';
+	}
 	$w .= '<tr><td colspan="2" class="revisions"><span class="pager">Revisions: </span>'.$v->getAdRevisionPagerHtml($v->listRevIds, $v->current_rev_index).'</td></tr>';
 	$w .= '<tr><td valign="top">';
 	if (!empty($theData['photos'])) {
@@ -207,7 +238,7 @@ if (!empty($theData)) {
 	
 	//DO NOT USE CLASS="ad-text" AS AdBlock browser addons will set CSS display:none on it!
 	$w .= '<tr><td class="label memex-ad-text">Text</td>';
-	$w .= '<td class="memex-ad-text">'.$theData['ad_text'].'</td></tr>'."\n";
+	$w .= '<td class="memex-ad-text" id="memex_ad_text">'.$theData['ad_text'].'</td></tr>'."\n";
 	
 	$bShowRawHtml = ($theData['raw_ad_text']!=$theData['ad_text']);
 	$w .= '<tr>';
@@ -266,3 +297,39 @@ $w .= str_repeat('<br />',8);
 $w .= $v->createJsTagBlock($jsCode, 'roxy_view_ad_runscript');
 print($w);
 $recite->includeMyFooter();
+
+//==============================================
+// HT CLASSIFIER SCORE (from CMU)
+//==============================================
+/*
+This file describes the API for the CMU ad classifier (version 0.1).
+The ad classifier is accessible through an HTTP server
+listening to port 8000. This simple server expects a
+POST request with raw text content. Content-Type: text
+and Content-Length are required header elements. Each
+request ought to contain the text from a single advertisement.
+The response contains the score given to the ad by the
+classifier.
+
+For example, the following request
+
+  POST HTTP/1.1
+  Host: 127.0.0.1:8000
+  Content-Type: text
+  Content-Length: 19
+  Cache-Control: no-cache
+
+  this is my ad text
+
+generates the following response
+
+  HTTP/1.1 200 OK
+  Content-Type: text
+  Content-Length: 3
+
+  0.5
+
+in which 0.5 is the score given to the ad by the classifier.
+Scores range from 0 to 1.
+
+*/

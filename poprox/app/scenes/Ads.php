@@ -195,7 +195,28 @@ class Ads extends BaseScene {
 		return $thePager;
 	}
 	
+	/**
+	 * External tool API for scoring may be employed.
+	 * @param string $aText - the ad text to score.
+	 * @return string Returns the score to display.
+	 */
+	public function getHTscore($aText) {
+		if ($this->_config && !empty($this->_config['poprox/ht_classifier_score_enabled'])
+			&& !empty($this->_config['poprox/ht_classifier_score_url']) && !empty($aText)) {
+			$theCurl = curl_init($this->_config['poprox/ht_classifier_score_url']);
+			curl_setopt($theCurl, CURLOPT_RETURNTRANSFER, true); //capture the response
+			curl_setopt($theCurl, CURLOPT_HEADER, 0); //do not include headers in response
+			curl_setopt($theCurl, CURLOPT_POSTFIELDS, $aText); //data to POST
+			curl_setopt($theCurl, CURLOPT_HTTPHEADER, array( //additional headers to send
+					'Content-Type: text',  //API requires content type of "text" only, not text/plain like traditional MIME
+					'Content-Length: '.strlen($aText),  //byte count, not character count, so use strlen() here
+			));
+			$theResponse = curl_exec($theCurl);
+			curl_close($theCurl);
+			return $theResponse;
+		}
+	}
+
 }//end class
 
 }//end namespace
-
