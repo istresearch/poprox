@@ -251,17 +251,17 @@ class Scene extends BaseScene {
 	 * @param string $aJsonData - JSON data to incorporate.
 	 */
 	protected function setupJsonVars($aJsonData) {
-		$theData = json_decode($aJsonData,true);
-		//$this->debugLog('SETUP JSON VARS: '.$this->debugStr($theData));
-		/*
-		if (json_last_error() === JSON_ERROR_NONE) {
-			$this->debugLog('SETUP JSON VARS: no json error');
-		} else {
-			$this->debugLog('SETUP JSON VARS: yes, a json error: '.json_last_error());
+		$theData = null;
+		if (!empty($aJsonData)) {
+			$theData = json_decode($aJsonData,true);
+			if (json_last_error() !== JSON_ERROR_NONE) {
+				$this->debugLog(__METHOD__.' json error: '.json_last_error().' data='.$this->debugStr($aJsonData));
+			}
 		}
-		*/
-		foreach ($theData as $key => $val) {
-			$this->$key = $val;
+		if (!empty($theData)) {
+			foreach ($theData as $key => $val) {
+				$this->$key = $val;
+			}
 		}
 	}
 	
