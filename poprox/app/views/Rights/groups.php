@@ -5,7 +5,11 @@ use BitsTheater\scenes\Rights as MyScene;
 use com\blackmoonit\Strings;
 use com\blackmoonit\Widgets;
 use BitsTheater\models\Groups;
-$recite->includeMyHeader();
+$h = '';
+$h .= $v->getCSStag('bootstrap/css/bootstrap.css');
+$h .= $v->getScriptTag('bootstrap/js/bootstrap.min.js');
+$h .= $v->getScriptTag('bootbox/bootbox.js');
+$recite->includeMyHeader($h);
 $w = '';
 
 $theParentGroups = array();

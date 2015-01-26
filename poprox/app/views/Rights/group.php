@@ -3,7 +3,11 @@ use BitsTheater\scenes\Rights as MyScene;
 /* @var $recite MyScene */
 /* @var $v MyScene */
 use com\blackmoonit\Widgets;
-$recite->includeMyHeader();
+$h = '';
+$h .= $v->getCSStag('bootstrap/css/bootstrap.css');
+$h .= $v->getScriptTag('bootstrap/js/bootstrap.min.js');
+$h .= $v->getScriptTag('bootbox/bootbox.js');
+$recite->includeMyHeader($h);
 $w = '';
 
 $w .= "<h1>{$v->getRes('permissions/title_group/'.$v->group['group_name'])}</h1>\n";
