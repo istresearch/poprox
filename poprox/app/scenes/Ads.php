@@ -202,7 +202,7 @@ class Ads extends BaseScene {
 	 */
 	public function getHTscore($aText) {
 		if ($this->_config && !empty($this->_config['poprox/ht_classifier_score_enabled'])
-			&& !empty($this->_config['poprox/ht_classifier_score_url']) && !empty($aText)) {
+				&& !empty($this->_config['poprox/ht_classifier_score_url']) && !empty($aText)) {
 			$theCurl = curl_init($this->_config['poprox/ht_classifier_score_url']);
 			curl_setopt($theCurl, CURLOPT_RETURNTRANSFER, true); //capture the response
 			curl_setopt($theCurl, CURLOPT_HEADER, 0); //do not include headers in response
@@ -212,6 +212,10 @@ class Ads extends BaseScene {
 					'Content-Length: '.strlen($aText),  //byte count, not character count, so use strlen() here
 			));
 			$theResponse = curl_exec($theCurl);
+			$theError = curl_error($theCurl);
+			if (!empty($theError)) {
+				$this->debugLog(__METHOD__.' url='.$this->_config['poprox/ht_classifier_score_url'].' err='.$this->debugStr($theError));
+			}
 			curl_close($theCurl);
 			return $theResponse;
 		}
