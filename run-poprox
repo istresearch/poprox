@@ -43,7 +43,7 @@ dns_value = ""
 driver = "mysql"
 host = "$WEBAPPDBHOST"
 ;port = 3306
-dbname = "memex_ist_webapp"
+dbname = "$WEBAPPDBNAME"
 username = "$WEBAPPDBUSER"
 password = "$WEBAPPDBPASS"
 EOF
