@@ -203,7 +203,9 @@ class Scene extends BaseScene {
 		$this->me = new ReflectionClass($this);
 		$this->_actor = $anActor;
 		$this->_director = $anActor->director;
-		$this->_config = $anActor->config;
+		if ($this->_director->canConnectDb() && $this->_director->isInstalled()) {
+			$this->_config = $this->_director->getProp('Config');
+		}
 		$this->_action = $anAction;
 		$this->_dbError = false;
 		$this->setupDefaults();
