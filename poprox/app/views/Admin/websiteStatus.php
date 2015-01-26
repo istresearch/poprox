@@ -5,7 +5,11 @@ use BitsTheater\scenes\Install as MyScene;
 use BitsTheater\models\SetupDb as MetaModel;
 use com\blackmoonit\Strings;
 use com\blackmoonit\Widgets;
-$recite->includeMyHeader();
+$h = '';
+$h .= $v->getCSStag('bootstrap/css/bootstrap.css');
+$h .= $v->getScriptTag('bootstrap/js/bootstrap.min.js');
+$h .= $v->getScriptTag('bootbox/bootbox.js');
+$recite->includeMyHeader($h);
 $w = '<br />';
 $jsCode = <<<EOD
 var theWarningDialog = {
