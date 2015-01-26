@@ -14,12 +14,12 @@ class Config extends BaseResources {
 	);
 	
 	public $label_poprox = array(
-			'ht_classifier_score_enabled' => 'Use CMU\'s HT Classifier Service',
-			'ht_classifier_score_url' => 'CMU\'s HT Classifier Service URL',
+			'ht_classifier_score_enabled' => 'Use CMU\'s ML Classifier Service',
+			'ht_classifier_score_url' => 'CMU\'s ML Classifier Service URL',
 	);
 	public $desc_poprox = array(
-			'ht_classifier_score_enabled' => 'CMU\'s Human Trafficking Classifier Service may be employed for additional ad information.',
-			'ht_classifier_score_url' => 'URL required to use CMU\'s Human Trafficking Classifier Service.',
+			'ht_classifier_score_enabled' => 'CMU\'s Machine Learning Classifier Service may be employed for additional ad information.',
+			'ht_classifier_score_url' => 'URL required to use CMU\'s Machine Learning Classifier Service.',
 	);
 	public $input_poprox = array(
 			'ht_classifier_score_enabled' => array(

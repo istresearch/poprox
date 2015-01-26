@@ -127,7 +127,7 @@ if (!empty($theData)) {
 	$theHTscore = $v->getHTscore($theAdText);
 	if (!empty($theHTscore)) {
 		$w .= '<tr><td colspan="2" style="font-size: larger;">';
-		$w .= '<p>HT Classifier Score: <span class="badge" id="ht_classifier_score" style="min-width: 3em">'.$theHTscore.'</span></p>';
+		$w .= '<p>ML Classifier Score: <span class="badge" id="ht_classifier_score" style="min-width: 3em">'.round($theHTscore,6).'</span> ('.round($theHTscore*100,2).'%) </p>';
 		$w .= '</td></tr>';
 	}
 	$w .= '<tr><td colspan="2" class="revisions"><span class="pager">Revisions: </span>'.$v->getAdRevisionPagerHtml($v->listRevIds, $v->current_rev_index).'</td></tr>';
