@@ -41,15 +41,15 @@ class Website extends BaseResources {
 		
 		//NULL path means use default lib path path
 		$this->css_load_list = array(
-				//'bootstrap/css/bootstrap.css' => null,
+				'bootstrap/css/bootstrap.css' => null,
 				'apycom/menu.css' => null,
 				'bits.css' => BITS_RES.'/style',
 		);
 		// external libs
 		$this->js_libs_load_list = array(
 				'jquery/jquery.min.js',
-				//'bootstrap/js/bootstrap.min.js', //bootstrap needs to be after jQuery
-				//'bootbox/bootbox.js',
+				'bootstrap/js/bootstrap.min.js', //bootstrap needs to be after jQuery
+				'bootbox/bootbox.js',
 				
 				//apycom menu (needs to be after jQuery, else use the jquery sublib)
 				//'apycom/jquery.js', //do not need if already using jQuery

@@ -22,6 +22,13 @@ class Website extends BaseResources {
 	 */
 	public function setup($aDirector) {
 		parent::setup($aDirector);
+		
+		//we do not want the following libs universally loaded, case by case only
+		//Bootstrap
+		unset($this->css_load_list['bootstrap/css/bootstrap.css']);
+		unset($this->js_libs_load_list['bootstrap/js/bootstrap.min.js']);
+		//Bootbox
+		unset($this->js_libs_load_list['bootbox/bootbox.js']);
 
 		//NULL path means use default lib path path
 		$this->res_array_merge($this->css_load_list, array(
