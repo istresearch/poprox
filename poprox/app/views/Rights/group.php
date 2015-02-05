@@ -7,6 +7,20 @@ $h = '';
 $h .= $v->getCSStag('bootstrap/css/bootstrap.css');
 $h .= $v->getScriptTag('bootstrap/js/bootstrap.min.js');
 $h .= $v->getScriptTag('bootbox/bootbox.js');
+$h .= '<style>';
+$h .= <<<EOM
+input[type="radio"]+label {
+	min-width: 2em;
+}
+input[type="radio"][value="deny"]:checked+label {
+	background: tomato;
+}
+input[type="radio"][value="allow"]:checked+label {
+	background: lime;
+}
+
+EOM;
+$h .= '</style>';
 $recite->includeMyHeader($h);
 $w = '';
 
@@ -31,7 +45,7 @@ foreach ($v->right_groups as $ns => $nsInfo) {
 			continue;
 		//if (Auth::TYPE!='basic' && $ns=='auth' && $theRight!='modify') continue;
 		$cellLabel = '<td style="width:20em" class="db-field-label">'.$theRightInfo->label.'</td>';
-		$cellInput = '<td style="width:12em;text-align:center">'.Widgets::createRadioSet($ns.'__'.$theRight,
+		$cellInput = '<td style="width:15em;text-align:center">'.Widgets::createRadioSet($ns.'__'.$theRight,
 				$v->getShortRightValues(), $thePermissionValue,	'right',"&nbsp;&nbsp;").'</td>';
 		$cellDesc = '<td style="width:40em">'.$theRightInfo->desc.'</td>';
 	

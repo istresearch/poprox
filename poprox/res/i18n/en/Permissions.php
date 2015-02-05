@@ -1,6 +1,6 @@
 <?php
 namespace BitsTheater\res\en;
-use BitsTheater\res\en\CorePermissions as BaseResources;
+use BitsTheater\res\en\BitsPermissions as BaseResources;
 use BitsTheater\costumes\EnumResEntry;
 {//begin namespace
 

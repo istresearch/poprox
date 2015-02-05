@@ -6,7 +6,7 @@ use BitsTheater\res\Website as BaseResources;
 class Website extends BaseResources {
 	public $feature_id = 'IST Research: Poprox website';
 	public $version_seq = 1;	//build number, inc if db models need updating, override this in descendant
-	public $version = '2.3.0';	//displayed version text, override this in descendant
+	public $version = '2.3.1';	//displayed version text, override this in descendant
 	
 	public $header_meta_title = 'Roxy';
 	public $header_title = 'Roxy';
@@ -18,7 +18,7 @@ class Website extends BaseResources {
 	
 	/**
 	 * Some resources need to be initialized by running code rather than a static definition.
-	 * @see \BitsTheater\res\BaseWebsite::setup()
+	 * @see \BitsTheater\res\Website::setup()
 	 */
 	public function setup($aDirector) {
 		parent::setup($aDirector);
@@ -40,6 +40,20 @@ class Website extends BaseResources {
 		));
 	}
 	
+	/**
+	 * Override this function if your website needs to do some updates that are not database related.
+	 * Throw an exception if your update did not succeed.
+	 * @param number $aSeqNum - the version sequence number (<= what is defined in your overriden Website class).
+	 * @throws Exception on failure.
+	 */
+	public function updateVersion($aSeqNum) {
+		try {
+			//nothing to do, yet
+		} catch (Exception $e) {
+			$this->debugLog($e->getMessage());
+		}
+	}
+
 }//end class
 
 }//end namespace
