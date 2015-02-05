@@ -41,6 +41,13 @@ class SqlBuilder extends BaseCostume {
 	 * @var string
 	 */
 	public $field_quotes = '`';
+	/**
+	 * Using the "=" when NULL is involved is ambiguous unless you know
+	 * if it is part of a SET clause or WHERE clause.  Explicitly set
+	 * this flag to let the SqlBuilder know it is in a WHERE clause.
+	 * @var boolean
+	 */
+	public $bUseIsNull = false;
 	
 	public $myDataSet = null;
 	public $myParamPrefix = ' ';
@@ -251,8 +258,19 @@ class SqlBuilder extends BaseCostume {
 	 */
 	protected function addingParam($aFieldName, $aParamKey, $aParamValue, $aParamType) {
 		if (!is_array($aParamValue) || empty($aParamValue)) {
-			$this->mySql .= $this->myParamPrefix.$this->field_quotes.$aFieldName.$this->field_quotes.$this->myParamOperator.':'.$aParamKey;
-			$this->setParam($aParamKey,$aParamValue,$aParamType);
+			if (!is_null($aParamValue) || !$this->bUseIsNull) {
+				$this->mySql .= $this->myParamPrefix.$this->field_quotes.$aFieldName.$this->field_quotes.$this->myParamOperator.':'.$aParamKey;
+				$this->setParam($aParamKey,$aParamValue,$aParamType);
+			} else {
+				switch (trim($this->myParamOperator)) {
+					case '=':
+						$this->mySql .= $this->myParamPrefix.$this->field_quotes.$aFieldName.$this->field_quotes.' IS NULL';
+						break;
+					case '<>':
+						$this->mySql .= $this->myParamPrefix.$this->field_quotes.$aFieldName.$this->field_quotes.' IS NOT NULL';
+						break;
+				}//switch
+			}
 		} else {
 			$saveParamOp = $this->myParamOperator;
 			switch (trim($this->myParamOperator)) {
@@ -455,6 +473,23 @@ class SqlBuilder extends BaseCostume {
 			}
 			$this->add(implode(',', $theOrderByList));
 		}
+		return $this;
+	}
+	
+	/**
+	 * Some operators require alternate handling during WHERE clauses (e.g. "=" with NULLs).
+	 * This will setParamPrefix(" WHERE ") which will apply to the next addParam.
+	 */
+	public function startWhereClause() {
+		$this->bUseIsNull = true;
+		return $this->setParamPrefix(' WHERE ');
+	}
+	
+	/**
+	 * Some operators require alternate handling during WHERE clauses (e.g. "=" with NULLs).
+	 */
+	public function endWhereClause() {
+		$this->bUseIsNull = false;
 		return $this;
 	}
 	
