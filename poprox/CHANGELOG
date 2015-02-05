@@ -1,6 +1,7 @@
 2015-Feb-05 v2.3.1
 * Resource files renamed to better support file-compare-merge updates.
 * SqlBuilder class handles more complex cases.
+* Permission page with better visual indicators on Allowed / Denied rights
 2014-Nov-25 v2.3.0
 * Scoring API added in January 2015 before this version rolled out.
 * Added support for versioning the website.
