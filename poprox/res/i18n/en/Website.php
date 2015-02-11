@@ -16,6 +16,9 @@ class Website extends BaseResources {
 			'prime_investor' => '<a href="http://www.istresearch.com/">IST Research, LLC.</a>',
 	);
 	
+	//public $list_credits_html_more = array(
+	//);
+	
 	/**
 	 * Some resources need to be initialized by running code rather than a static definition.
 	 * @see \BitsTheater\res\Website::setup()
@@ -23,6 +26,10 @@ class Website extends BaseResources {
 	public function setup($aDirector) {
 		parent::setup($aDirector);
 		
+		//default page tab label is virtual host, but can be static or whatever you desire.
+		if (VIRTUAL_HOST_NAME)
+			$this->header_meta_title = VIRTUAL_HOST_NAME;
+
 		//we do not want the following libs universally loaded, case by case only
 		//Bootstrap
 		unset($this->css_load_list['bootstrap/css/bootstrap.css']);
@@ -30,7 +37,7 @@ class Website extends BaseResources {
 		//Bootbox
 		unset($this->js_libs_load_list['bootbox/bootbox.js']);
 
-		//NULL path means use default lib path path
+		//NULL path means use default lib path
 		$this->res_array_merge($this->css_load_list, array(
 				'roxy.css' => BITS_RES.'/style',
 		));

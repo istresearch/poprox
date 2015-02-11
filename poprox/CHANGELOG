@@ -1,7 +1,12 @@
-2015-Feb-05 v2.3.1
+2015-Feb-11 v2.3.1
 * Resource files renamed to better support file-compare-merge updates.
 * SqlBuilder class handles more complex cases.
 * Permission page with better visual indicators on Allowed / Denied rights
+* Install routine updated to fix bugs.
+* Cookies honored, if present and accurate.
+* Logout will reset all cookie tokens from all browsers/devices.
+* Virtual host name defined as a usable constant in page scripts.
+* Debug log will use the virtual host name, if defined.
 2014-Nov-25 v2.3.0
 * Scoring API added in January 2015 before this version rolled out.
 * Added support for versioning the website.

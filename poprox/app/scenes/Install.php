@@ -98,41 +98,28 @@ class Install extends Scene {
 	public function getDbConns() {
 		$db_conns = array();
 		
-		$theDbConnInfo = new DbConnInfo();
-		$theDbConnInfo->dbConnOptions->ini_filename = 'dbconn-webapp';
-		$theDbConnInfo->dbConnOptions->table_prefix = 'webapp_';
-		$theDbConnInfo->dbConnOptions->dns_scheme = DbConnOptions::DB_CONN_SCHEME_INI;
-		$theDbConnInfo->dbConnSettings->driver = DbConnSettings::DRIVER_MYSQL;
+		$theDbConnInfo = DbConnInfo::asSchemeINI('webapp');
 		$theDbConnInfo->dbConnSettings->dbname = 'memex_ist_webapp';
 		$theDbConnInfo->dbConnSettings->host = 'roxy-db.istresearch.com';
 		$theDbConnInfo->dbConnSettings->username = 'webz';
 		$db_conns[] = $theDbConnInfo;
 		/* we do not calculate queue-depth stats anymore, no need to read the scrape db
-		$theDbConnInfo = new DbConnInfo();
-		$theDbConnInfo->dbConnOptions->ini_filename = 'dbconn-roxy_scrape';
+		$theDbConnInfo = DbConnInfo::asSchemeINI('roxy_scrape');
 		$theDbConnInfo->dbConnOptions->table_prefix = '';
-		$theDbConnInfo->dbConnOptions->dns_scheme = DbConnOptions::DB_CONN_SCHEME_INI;
-		$theDbConnInfo->dbConnSettings->driver = DbConnSettings::DRIVER_MYSQL;
 		$theDbConnInfo->dbConnSettings->dbname = 'roxy_scrape';
 		$theDbConnInfo->dbConnSettings->host = 'roxy-db.istresearch.com';
 		$theDbConnInfo->dbConnSettings->username = 'roxy';
 		$db_conns[] = $theDbConnInfo;
 		*/
-		$theDbConnInfo = new DbConnInfo();
-		$theDbConnInfo->dbConnOptions->ini_filename = 'dbconn-memex_ist';
+		$theDbConnInfo = DbConnInfo::asSchemeINI('memex_ist');
 		$theDbConnInfo->dbConnOptions->table_prefix = '';
-		$theDbConnInfo->dbConnOptions->dns_scheme = DbConnOptions::DB_CONN_SCHEME_INI;
-		$theDbConnInfo->dbConnSettings->driver = DbConnSettings::DRIVER_MYSQL;
 		$theDbConnInfo->dbConnSettings->dbname = 'memex_ist';
 		$theDbConnInfo->dbConnSettings->host = 'roxy-db.istresearch.com';
 		$theDbConnInfo->dbConnSettings->username = 'roxy';
 		$db_conns[] = $theDbConnInfo;
 		
-		$theDbConnInfo = new DbConnInfo();
-		$theDbConnInfo->dbConnOptions->ini_filename = 'dbconn-memex_ht';
+		$theDbConnInfo = DbConnInfo::asSchemeINI('memex_ht');
 		$theDbConnInfo->dbConnOptions->table_prefix = '';
-		$theDbConnInfo->dbConnOptions->dns_scheme = DbConnOptions::DB_CONN_SCHEME_INI;
-		$theDbConnInfo->dbConnSettings->driver = DbConnSettings::DRIVER_MYSQL;
 		$theDbConnInfo->dbConnSettings->dbname = 'memex_ht';
 		$theDbConnInfo->dbConnSettings->host = 'roxy-db.istresearch.com';
 		$theDbConnInfo->dbConnSettings->username = 'roxy';
@@ -141,25 +128,17 @@ class Install extends Scene {
 		return $db_conns;
 	}
 	
-	public function getFormIdPrefix(DbConnInfo $aDbConnInfo) {
-		if (!empty($aDbConnInfo) && !empty($aDbConnInfo->dbConnSettings->dbname)) {
-			return $aDbConnInfo->dbConnSettings->dbname;
-		} else {
-			return 'webapp';
-		}
-	}
-
 	public function getDnsWidgets(DbConnInfo $aDbConnInfo, $aScene) {
 		/* @var $v Install */
 		$v =& $this;
 		$theDnsScheme = $aDbConnInfo->dbConnOptions->dns_scheme;
 		if (empty($theDnsScheme))
 			return;
-		$theFormIdPrefix = $v->getFormIdPrefix($aDbConnInfo);
+		$theFormIdPrefix = $aDbConnInfo->myDbConnName;
 		$w = '';
 		switch ($theDnsScheme) {
 			case DbConnOptions::DB_CONN_SCHEME_INI:
-				$w .= '<table class="db-entry">';
+				$w .= '<table class="db-entry" id="'.$theFormIdPrefix.'">';
 
 				$w .= '<tr>';
 				$theWidgetName = $theFormIdPrefix.'_dbhost';

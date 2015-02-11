@@ -18,6 +18,8 @@
 namespace BitsTheater\models;
 use BitsTheater\models\AuthBase as BaseModel;
 use com\blackmoonit\Strings;
+use BitsTheater\costumes\SqlBuilder;
+use \PDO;
 {//namespace begin
 
 class Auth extends BaseModel {
@@ -33,21 +35,14 @@ class Auth extends BaseModel {
 	const KEY_pwinput = 'pwinput';
 	const KEY_cookie = 'seasontickets';
 	const KEY_keyid = 'ticketmaster';
-	const KEY_app_id = 'venue_id';
 
 	public $tnAuth;
 	protected $tnAuthCookie;
-	protected $sql_register;
-	protected $pt_register;
 		
 	public function setupAfterDbConnected() {
 		parent::setupAfterDbConnected();
 		$this->tnAuth = $this->tbl_.'auth';
 		$this->tnAuthCookie = $this->tbl_.'auth_cookie';
-		$this->sql_register = "INSERT INTO {$this->tnAuth} ".
-				"(email, account_id, pwhash, verified, _created) VALUES ".
-				"(:email, :acct_id, :pwhash, :ts, NOW())";
-		$this->pt_register = array(\PDO::PARAM_STR,\PDO::PARAM_INT,\PDO::PARAM_STR,\PDO::PARAM_STR,\PDO::PARAM_STR);
 	}
 	
 	public function cleanup() {
@@ -78,10 +73,12 @@ class Auth extends BaseModel {
 		}
 	}
 	
+	protected function exists($aTableName=null) {
+		return parent::exists( empty($aTableName) ? $this->tnAuth : $aTableName );
+	}
+	
 	public function isEmpty($aTableName=null) {
-		if ($aTableName==null)
-			$aTableName = $this->tnAuth;
-		return parent::isEmpty($aTableName);
+		return parent::isEmpty( empty($aTableName) ? $this->tnAuth : $aTableName );
 	}
 	
 	public function getAuthByEmail($aEmail) {
@@ -95,14 +92,13 @@ class Auth extends BaseModel {
 	}
 	
 	public function updateCookie($aAcctId) {
-		$keyid = Strings::randomSalt(128);
+		$keyid = Strings::createUUID().'-'.Strings::randomSalt(64-36-1); //unique 64char gibberish
 		$theSql = "INSERT INTO {$this->tnAuthCookie} (account_id, keyid) VALUES (:account_id, :keyid)";
 		$this->execDML($theSql,array('account_id'=>$aAcctId, 'keyid'=>$keyid),array(\PDO::PARAM_INT, \PDO::PARAM_STR));
 		//expires in 1 month
 		$delta = 2629743;
-		setcookie(self::KEY_userinfo, $aAcctId, time() + $delta);
-		setcookie(self::KEY_keyid, $keyid, time() + $delta);
-		setcookie(self::KEY_app_id, $this->director['app_id']);
+		setcookie(self::KEY_userinfo, $this->director->app_id.'-'.$aAcctId, time() + $delta, BITS_URL);
+		setcookie(self::KEY_keyid, $keyid, time() + $delta, BITS_URL);
 	}
 
 	public function checkTicket($aAcctName=null, $aAuth=null) {
@@ -168,13 +164,28 @@ class Auth extends BaseModel {
 				unset($userinfo);
 				unset($pwinput);
 			} elseif (!empty($_COOKIE[self::KEY_userinfo]) && !empty($_COOKIE[self::KEY_keyid])) {
-				$acct_id = $_COOKIE[self::KEY_userinfo];
+				$acct_id = Strings::strstr_after($_COOKIE[self::KEY_userinfo],$this->director->app_id.'-')+0;
 				$keyid = $_COOKIE[self::KEY_keyid];
-				$theSql = "SELECT account_id, keyid FROM {$this->tnAuthCookie} WHERE account_id=:id AND keyid=:keyid";
-				$baked = $this->getTheRow($theSql,array('id'=>$acct_id,'keyid'=>$keyid),array(\PDO::PARAM_INT,\PDO::PARAM_STR));
-				if ($baked) {
-					$theSql = "DELETE FROM {$this->tnAuthCookie} WHERE account_id=:id AND keyid=:keyid";
-					$this->execDML($theSql,array('id'=>$acct_id,'keyid'=>$keyid),array(\PDO::PARAM_INT,\PDO::PARAM_STR));
+				$theSql = SqlBuilder::withModel($this)->setDataSet(array(
+						'account_id' => $acct_id,
+						'keyid' => $keyid,
+				));
+				$theSql->startWith('SELECT account_id, keyid');
+				$theSql->add('FROM')->add($this->tnAuthCookie);
+				$theSql->startWhereClause()->mustAddParam('account_id', 0, PDO::PARAM_INT);
+				$theSql->setParamPrefix(' AND ')->mustAddParam('keyid');
+				$theSql->endWhereClause();
+				$baked = $theSql->getTheRow();
+				if (!empty($baked) && Strings::beginsWith($_COOKIE[self::KEY_userinfo],$this->director->app_id)) {
+					//consume this particular cookie (single browser/device combo)
+					$theSql->reset();
+					$theSql->startWith('DELETE FROM')->add($this->tnAuthCookie);
+					$theSql->add('WHERE ( _changed < (NOW() - INTERVAL 1 MONTH) )');
+					$theSql->setParamPrefix(' OR (')->mustAddParam('account_id', 0, PDO::PARAM_INT);
+					$theSql->setParamPrefix(' AND ')->mustAddParam('keyid');
+					$theSql->add(')');
+					$theSql->execDML();
+					
 					$authdata = $this->getAuthById($acct_id);
 					if (isset($authdata)) {
 						//authorized, load acct data
@@ -182,6 +193,7 @@ class Auth extends BaseModel {
 						if (isset($this->director->account_info)) {
 							$this->director->account_info['email'] = $authdata['email'];
 							$this->director->account_info['groups'] = $this->belongsToGroups($acct_id);
+							//bake (create) a new cookie for next time
 							$this->updateCookie($acct_id);
 						}
 					} else {
@@ -199,7 +211,16 @@ class Auth extends BaseModel {
 	public function ripTicket() {
 		setcookie(self::KEY_userinfo);
 		setcookie(self::KEY_keyid);
-		setcookie(self::KEY_app_id);
+		
+		//remove all cookie records for current login (logout means from everywhere)
+		$theSql = SqlBuilder::withModel($this)->setDataSet(array(
+				'account_id' => $this->director->account_info['account_id'],
+		));
+		$theSql->startWith('DELETE FROM')->add($this->tnAuthCookie);
+		$theSql->add('WHERE ( _changed < (NOW() - INTERVAL 1 MONTH) )');
+		$theSql->setParamPrefix(' OR ')->mustAddParam('account_id', 0, PDO::PARAM_INT);
+		$theSql->execDML();
+
 		parent::ripTicket();
 	}
 	
@@ -215,21 +236,25 @@ class Auth extends BaseModel {
 	}
 		
 	/**
-	 * keys: email, acct_id, acct_name, pwinput, verified_timestamp
-	 * @see app\model.AuthBase::registerAccount()
+	 * keys: email, account_id, pwinput, verified_timestamp
 	 */
 	public function registerAccount($aUserData, $aDefaultGroup=0) {
 		if ($this->isEmpty()) {
 			$aDefaultGroup = 1;
 		}
-		$theValues = array(
+		$theSql = SqlBuilder::withModel($this)->setDataSet(array(
 				'email'		=> $aUserData['email'],
-				'acct_id'	=> $aUserData['account_id'],
+				'account_id'	=> $aUserData['account_id'],
 				'pwhash'	=> Strings::hasher($aUserData[self::KEY_pwinput]),
-				'ts'		=> $aUserData['verified_timestamp'],
-		);
-		$theResult = $this->execDML($this->sql_register,$theValues,$this->pt_register);
-		if ($theResult) {
+				'verified'		=> $aUserData['verified_timestamp'],
+		));
+		$theSql->startWith('INSERT INTO '.$this->tnAuth);
+		$theSql->add('SET _created=NOW()')->setParamPrefix(', ');
+		$theSql->mustAddParam('email');
+		$theSql->mustAddParam('account_id', 0, PDO::PARAM_STR);
+		$theSql->mustAddParam('pwhash');
+		$theSql->addParam('verified');		
+		if ($theSql->execDML()) {
 			$dbGroupMap = $this->getProp('Groups');
 			$dbGroupMap->addAcctMap($aDefaultGroup,$aUserData['account_id']);
 			$this->returnProp($dbGroupMap);
