@@ -5,8 +5,8 @@ use BitsTheater\res\Website as BaseResources;
 
 class Website extends BaseResources {
 	public $feature_id = 'IST Research: Poprox website';
-	public $version_seq = 1;	//build number, inc if db models need updating, override this in descendant
-	public $version = '2.3.1';	//displayed version text, override this in descendant
+	public $version_seq = 2;	//build number, inc if db models need updating
+	public $version = '2.3.2';	//displayed version text
 	
 	public $header_meta_title = 'Roxy';
 	public $header_title = 'Roxy';
@@ -26,16 +26,24 @@ class Website extends BaseResources {
 	public function setup($aDirector) {
 		parent::setup($aDirector);
 		
-		//default page tab label is virtual host, but can be static or whatever you desire.
-		if (VIRTUAL_HOST_NAME)
-			$this->header_meta_title = VIRTUAL_HOST_NAME;
-
 		//we do not want the following libs universally loaded, case by case only
 		//Bootstrap
 		unset($this->css_load_list['bootstrap/css/bootstrap.css']);
 		unset($this->js_libs_load_list['bootstrap/js/bootstrap.min.js']);
 		//Bootbox
 		unset($this->js_libs_load_list['bootbox/bootbox.js']);
+
+		//NULL path means use default lib path
+		$this->res_array_merge($this->js_load_list, array(
+				//minification from http://www.jsmini.com/ using Basic and no jquery included.
+				'webapp_mini.js' => WEBAPP_JS_URL,
+				//  !-remove the below space and comment out the above line to debug un-minified JS code
+				/* * /
+				'webapp.js' => WEBAPP_JS_URL,
+				'BitsRightGroups.js' => WEBAPP_JS_URL,
+				//'AnotherFile.js' => WEBAPP_JS_URL,
+				/* end of webapp JS */
+		));
 
 		//NULL path means use default lib path
 		$this->res_array_merge($this->css_load_list, array(
@@ -57,7 +65,9 @@ class Website extends BaseResources {
 		try {
 			//nothing to do, yet
 		} catch (Exception $e) {
-			$this->debugLog($e->getMessage());
+			//throw expection if your update code fails (logging it would be a good idea, too).
+			$this->debugLog(__METHOD__.' '.$e->getMessage());
+			throw $e;
 		}
 	}
 

@@ -1,9 +1,7 @@
 <?php
 
 namespace ISTResearch_Roxy\models;
-use BitsTheater\Model as BaseModel;
-use com\blackmoonit\exceptions\IllegalArgumentException;
-use com\blackmoonit\exceptions\DbException;
+use BitsTheater\models\PropCloset\Accounts as BaseModel;
 {//begin namespace
 
 /**
@@ -11,16 +9,6 @@ use com\blackmoonit\exceptions\DbException;
  * make the Accounts class descend from this class in Roxy.
  */
 class RoxyAccounts extends BaseModel {
-	public $tnAccounts; const TABLE_Accounts = 'accounts';
-
-	public function setupAfterDbConnected() {
-		parent::setupAfterDbConnected();
-		$this->tnAccounts = $this->tbl_.self::TABLE_Accounts;
-	}
-	
-	protected function getTableName() {
-		return $this->tnAccounts;
-	}
 	
 	public function setupModel() {
 		switch ($this->dbType()) {
@@ -35,27 +23,6 @@ class RoxyAccounts extends BaseModel {
 				") CHARACTER SET utf8 COLLATE utf8_general_ci";
 		}
 		$this->execDML($theSql);
-	}
-	
-	public function isEmpty($aTableName=null) {
-		if ($aTableName==null)
-			$aTableName = $this->tnAccounts;
-		return parent::isEmpty($aTableName);
-	}
-	
-	public function getAccount($aAcctId) {
-		$theSql = "SELECT * FROM {$this->tnAccounts} WHERE account_id = :acct_id";
-		return $this->getTheRow($theSql,array('acct_id'=>$aAcctId));
-	}
-	
-	public function getByName($aName) {
-		$theSql = "SELECT * FROM {$this->tnAccounts} WHERE account_name = :acct_name";
-		return $this->getTheRow($theSql,array('acct_name'=>$aName));
-	}
-	
-	public function getByExternalId($aExternalId) {
-		$theSql = "SELECT * FROM {$this->tnAccounts} WHERE external_id = :external_id";
-		return $this->getTheRow($theSql,array('external_id'=>$aExternalId));
 	}
 	
 	public function add($aData) {
@@ -87,12 +54,6 @@ class RoxyAccounts extends BaseModel {
 		return $theResult;
 	}
 	
-	public function del($aAccountId) {
-		$theSql = "DELETE FROM {$this->tnAccounts} WHERE account_id=$aAccountId ";
-		return $this->execDML($theSql);
-	}
-	
-
 }//end class
 
 }//end namespace

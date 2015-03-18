@@ -129,7 +129,7 @@ class Strings {
 	}
 
 	/**
-	 * Generate a random string of variable length.
+	 * Generate a random string of variable length using Base64 alphabet.
 	 * @param int $aLen - (optional) length of the random string, default 16.
 	 * @return string - Returns the randomly generated string.
 	 */
@@ -137,6 +137,19 @@ class Strings {
 		$salt = str_repeat('.',$aLen);
 		for ($i = 0; $i<$aLen; $i++) {
 			$salt{$i} = substr("./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", mt_rand(0,63), 1);
+		}
+		return $salt;
+	}
+	
+	/**
+	 * Random string with just ".", "0 thru 9", and "A-Z,a-z".
+	 * @param number $aLen - (optional) length of random string, default 16.
+	 * @return string Returns a random string of length specified.
+	 */
+	static public function urlSafeRandomChars($aLen=16) {
+		$salt = str_repeat('.',$aLen);
+		for ($i = 0; $i<$aLen; $i++) {
+			$salt{$i} = substr(".ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", mt_rand(0,62), 1);
 		}
 		return $salt;
 	}
@@ -155,12 +168,19 @@ class Strings {
 	 * else FALSE is returned.
 	 */
 	static public function hasher($aPwInput, $aEncryptedData = false) {
+		//only first 72 chars are encoded via blowfish,
+		//  and also try to protect against unseemly long string/time attacks
+		if (strlen($aPwInput)<64) {
+			$thePwInput = urlencode($aPwInput);
+		} else {
+			$thePwInput = urlencode(substr($aPwInput,0,64).min(array(999,strlen($aPwInput))));
+		}
 		$theCryptoInfo = '$2a$08$'; //2a = Blowfish, 08 = crypto strength, append actual 22 char salt to end of this
 		//if encrypted data is passed, check it against input ($info)
 		if ($aEncryptedData) {
 			$saltCrypto = substr($aEncryptedData,0,-16);
 			$saltPw = substr($aEncryptedData,-16);
-			if ($aEncryptedData==crypt($aPwInput.$saltPw,$saltCrypto).$saltPw) {
+			if ($aEncryptedData==crypt($thePwInput.$saltPw,$saltCrypto).$saltPw) {
 				return true;
 			} else {
 				return false;
@@ -169,7 +189,7 @@ class Strings {
 			$saltPw = self::randomSalt(16);
 			$saltCrypto = $theCryptoInfo.self::randomSalt(22);
 			//return 76 char string (60 char hash & 16 char salt)
-			return crypt($aPwInput.$saltPw,$saltCrypto).$saltPw;
+			return crypt($thePwInput.$saltPw,$saltCrypto).$saltPw;
 		}
 	}
 
@@ -245,7 +265,7 @@ class Strings {
 		
 		try {
 			if (is_null($theVar)) {
-				$output .= '('.$theVarType.') NULL';
+				$output .= (($theVarType!=='NULL') ? '('.$theVarType.') ' : '').'NULL';
 			} else if ($theVarType==='array' && isset($theVar[self::DEBUG_VAR_DUMP_FLAG])) {
 				$output .= '[@see: |A-'.$theVar[self::DEBUG_VAR_DUMP_FLAG].'|]';
 			} else if ($theVarType==='object' && isset($theVar->{self::DEBUG_VAR_DUMP_FLAG})) {
@@ -470,8 +490,41 @@ class Strings {
 	static public function wordWrap($aStr, $aWidth=75, $aWrapper="\n") {
 		return preg_replace('#(\S{'.$aWidth.',})#e', "chunk_split('$1', ".$aWidth.", '".$aWrapper."')", $aStr);
 	}
-	
-	
+
+	/**
+	 * Similar to trim, but only works on the outer most layer.
+	 * @param string $aStr - string to strip off a single enclosure layer.
+	 * @param string $aEnclosureA - (optional) the starting enclosure, defaults to '"'.
+	 * @param string $aEnclosureB - (optional) the ending enclosure, defaults to $aEnclosureA.
+	 * @return string Returns the string stripped of the enclosure, if there was one.
+	 */
+	static public function stripEnclosure($aStr, $aEnclosureA='"', $aEnclosureB=null) {
+		$theResult = $aStr;
+		if (empty($aEnclosureB))
+			$aEnclosureB = $aEnclosureA;
+		if (!empty($aEnclosureA) && !empty($aEnclosureB) &&
+				self::beginsWith($aStr, $aEnclosureA) && self::endsWith($aStr, $aEnclosureB)) {
+			$theResult = substr($aStr, 1, -1);
+		}
+		return $theResult;
+	}
+
+	/**
+	 * Convert a 'key=value' string into array(key, value).
+	 * @param string $aStr - the string to parse.
+	 * @param string $aDelimiter - (optional) key=value separator, defaults to '='.
+	 * @return array Returns array(key, value) or array() if none found.
+	 */
+	static public function strToKeyValue($aStr, $aDelimiter='=') {
+		$theResult = array();
+		$thePos = strpos($aStr, $aDelimiter);
+		if (is_int($thePos)) {
+			$theResult[0] = substr($aStr, 0, $thePos);
+			$theResult[1] = substr($aStr, $thePos+strlen($aDelimiter));
+		}
+		return $theResult;
+	}
+
 }//end class
 
 }//end namespace

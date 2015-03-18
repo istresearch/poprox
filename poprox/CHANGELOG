@@ -1,3 +1,9 @@
+2015-Mar-18 v2.3.2
+* Security updates on defense for various attacks involving login and registration.
+* New HTTP Authentication method available involving token exchanges.
+* Class restructuring to better support file-compare-merge updates.
+* Website setting for when login cookies go stale.
+* (JIRA ticket fixes will go here)
 2015-Feb-11 v2.3.1
 * Resource files renamed to better support file-compare-merge updates.
 * SqlBuilder class handles more complex cases.

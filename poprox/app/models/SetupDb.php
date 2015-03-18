@@ -22,6 +22,7 @@ use BitsTheater\costumes\IFeatureVersioning;
 use com\blackmoonit\exceptions\DbException;
 use com\blackmoonit\Arrays;
 use com\blackmoonit\Strings;
+use com\blackmoonit\FileUtils;
 use \PDO;
 use \PDOException;
 use \Exception;
@@ -29,7 +30,7 @@ use \Exception;
 
 class SetupDb extends BaseModel implements IFeatureVersioning {
 	const FEATURE_ID = 'BitsTheater/framework';
-	const FEATURE_VERSION_SEQ = 3; //always ++ when making db schema changes
+	const FEATURE_VERSION_SEQ = 4; //always ++ when making db schema changes
 		
 	public $tnSiteVersions; const TABLE_SiteVersions = 'zz_versions';
 	
@@ -52,6 +53,7 @@ class SetupDb extends BaseModel implements IFeatureVersioning {
 					") CHARACTER SET utf8 COLLATE utf8_general_ci";
 			try {
 				$this->execDML($theSql);
+				$this->debugLog('Create table (if not exist) "'.$this->tnSiteVersions.'" succeeded.');
 			} catch (PDOException $pdoe) {
 				throw new DbException($pdoe,$theSql);
 			}
@@ -127,15 +129,9 @@ class SetupDb extends BaseModel implements IFeatureVersioning {
 	 */
 	protected function copyFileContents($aSrcFilePath, $aDestFilePath, $aReplacements) {
 		try {
-			$theSrcContents = file_get_contents($aSrcFilePath);
-			if ($theSrcContents) {
-				foreach ($aReplacements as $theReplacementName => $theReplacementValue) {
-					$theSrcContents = str_replace('%'.$theReplacementName.'%', $theReplacementValue, $theSrcContents);
-				}
-				if (file_put_contents($aDestFilePath,$theSrcContents, LOCK_EX)===false) {
-					$theMsg = $this->getRes('admin/msg_copy_cfg_fail/'.basename($aDestFilePath));
-					throw new Exception($theMsg);
-				}
+			if (!FileUtils::copyFileContents($aSrcFilePath, $aDestFilePath, $aReplacements)) {
+				$theMsg = $this->getRes('admin/msg_copy_cfg_fail/'.basename($aDestFilePath));
+				throw new Exception($theMsg);
 			}
 		} catch (Exception $e) {
 			$this->debugLog(__METHOD__."('$aSrcFilePath','$aDestFilePath') failed: ".$e->getMessage());
@@ -173,14 +169,22 @@ class SetupDb extends BaseModel implements IFeatureVersioning {
 		} else {
 			//framework update
 			switch (true) {
-				//cases should always be lo->hi, never use break; so all changes are done in order.
-				case ($theSeq<3):
-					//replace old class file with new class file
-					$this->installTemplate('I18N', BITS_CFG_PATH.'I18N.php', array(
-							//no other lang possible at this time
-							'default_lang' => 'en',
-							'default_region' => 'US',
-					), $aScene);
+			//cases should always be lo->hi, never use break; so all changes are done in order.
+			case ($theSeq<3):
+				//replace old class file with new class file
+				$this->installTemplate('I18N', BITS_CFG_PATH.'I18N.php', array(
+						//no other lang possible at this time
+						'default_lang' => 'en',
+						'default_region' => 'US',
+				), $aScene);
+			case ($theSeq<4):
+				//AuthGroups is a default framework class, but may not be there
+				//  in actual website, so check for !empty() before "fixing" it.
+				/* @var $dbAuthGroups BitsTheater\models\AuthGroups */
+				$dbAuthGroups = $this->getProp('AuthGroups');
+				if (!empty($dbAuthGroups)) {
+					$this->updateFeature($dbAuthGroups->getCurrentFeatureVersion());
+				}
 			}//switch
 
 			//update the feature table with all but our own model
@@ -226,7 +230,7 @@ class SetupDb extends BaseModel implements IFeatureVersioning {
 	}
 	
 	/**
-	 * @param string $aFeature - the feature name
+	 * @param string $aFeatureId - the feature ID
 	 * @param string $aFieldList - (optional) which fields to return, default is all of them.
 	 * @return array Returns the feature row as an array.
 	 */
@@ -246,6 +250,19 @@ class SetupDb extends BaseModel implements IFeatureVersioning {
 		return $theResultSet;
 	}
 	
+	/**
+	 * A feature listed in the table did not map to any model class in the website, remove it.
+	 * Most likely, the feature changed its feature id and/or model class name.
+	 * @param string $aFeatureId - the feature ID.
+	 */
+	protected function removeFeature($aFeatureId) {
+		if ($this->isConnected()) try {
+			$this->execDML('DELETE FROM '.$this->tnSiteVersions.' WHERE feature_id=:feature_id',
+					array('feature_id' => $aFeatureId));
+		} catch (PDOException $pdoe) {
+			throw new DbException($pdoe,  __METHOD__.' failed.');
+		}
+	}
 	
 	/**
 	 * @param string $aFieldList - which fields to return, default is all of them.
@@ -263,6 +280,10 @@ class SetupDb extends BaseModel implements IFeatureVersioning {
 					$theFeatures = $ps->fetchAll();
 					foreach($theFeatures as &$theFeatureRow) {
 						$dbModel = $this->getProp($theFeatureRow['model_class']);
+						if (empty($dbModel)) {
+							$this->removeFeature($theFeatureRow['feature_id']);
+							continue;
+						}
 						$theNewFeatureData = $dbModel->getCurrentFeatureVersion($theFeatureRow['feature_id']);
 						if (empty($theNewFeatureData['version_display'])) {
 							$theNewFeatureData['version_display'] = 'v'.$theNewFeatureData['version_seq'];
@@ -333,6 +354,7 @@ class SetupDb extends BaseModel implements IFeatureVersioning {
 			$theSql->startWith('UPDATE '.$this->tnSiteVersions);
 			$theSql->setParamPrefix(' SET ')->mustAddParam('version_seq');
 			$theSql->setParamPrefix(', ')->mustAddParam('version_display', 'v'.$theSql->getParam('version_seq'));
+			$theSql->addParam('model_class');
 			$theSql->addFieldAndParam('feature_id', 'new_feature_id');
 			$theSql->setParamPrefix(' WHERE ')->mustAddParam('feature_id');
 			if ($theSql->execDML()) {

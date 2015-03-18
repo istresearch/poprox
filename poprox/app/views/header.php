@@ -64,12 +64,14 @@ $w .= '<span class="subtitle">'.$v->getRes('website/header_subtitle').'</span>';
 $w .= '</td>'."\n";
 
 //login info
-$w .= '<td class="auth-area">';
+$w .= '<td class="auth-area">'."\n";
 $w .= '<a href="'.$v->getSiteURL('home/viewChangelog').'" target="_blank">v'.$v->getRes('website/version').'</a><br><br>';
-$w .= '<p>';
-$w .= $recite->cueActor('Account','buildAuthArea');
-$w .= '</p>';
-$w .= '</td>';
+if ($v->form_name!=='register_user') {
+	$w .= '<p>';
+	$w .= $recite->cueActor('Account','buildAuthArea');
+	$w .= '</p>';
+}
+$w .= '</td>'."\n";
 
 $w .= '</tr>'."\n";
 $w .= '</table>'."\n";

@@ -28,6 +28,8 @@ use \ReflectionClass;
 use \ReflectionMethod;
 use \ReflectionException;
 use \Exception;
+use BitsTheater\costumes\AccountInfoCache;
+use BitsTheater\models\Auth;
 {//begin namespace
 
 class Director extends BaseDirector implements ArrayAccess {
@@ -52,12 +54,23 @@ class Director extends BaseDirector implements ArrayAccess {
 	 * @var string
 	 */
 	public $app_id = __DIR__;
-	public $account_info = null;//array('account_id'=>-1, 'account_name'=>'', 'email'=>'', 'groups'=>array(), 'tz'=>'',);
+	
+	/**
+	 * Non-sensitive account info of the logged in user.
+	 * @var AccountInfoCache
+	 */
+	public $account_info = null;
+	
 	public $dbConnInfo = array(); //database connections to share with the models
 	protected $_propMaster = array(); //cache models created so app doesn't need to create 12 instances of any single model
 	protected $_resManager = null;
 	protected $_resMaster = array(); //cache of res classes
-	protected $auth = null; //cache of Auth model
+	
+	/**
+	 * Cache of the auth model in use.
+	 * @var Auth
+	 */
+	protected $dbAuth = null;
 
 	public function setup() {
 		try {
@@ -94,6 +107,7 @@ class Director extends BaseDirector implements ArrayAccess {
 			session_write_close();
 		}
 		unset($this->account_info);
+		$this->returnProp($this->dbAuth);
 		//destroy all cashed models
 		array_walk($this->_propMaster, function(&$n) {$n['model'] = null;} );
 		unset($this->_propMaster);
@@ -187,7 +201,7 @@ class Director extends BaseDirector implements ArrayAccess {
 		$theActorClass = self::getActorClass($anActorName);
 		//Strings::debugLog('rC: class='.$theActorClass.', exist?='.class_exists($theActorClass));
 		if (class_exists($theActorClass)) {
-			$theAction = (!empty($anAction)) ? $anAction : $theActorClass::DEFAULT_ACTION;
+			$theAction = $theActorClass::getDefaultAction($anAction);
 			$methodExists = method_exists($theActorClass,$theAction) && is_callable(array($theActorClass,$theAction));
 			if ($methodExists && $theActorClass::isActionUrlAllowed($theAction)) {
 				//$this->debugLog(__METHOD__.$theActorClass.'::'.$theAction.'('.$this->debugStr($aQuery).')');
@@ -206,7 +220,7 @@ class Director extends BaseDirector implements ArrayAccess {
 		$theActorClass = self::getActorClass($anActorName);
 		//Strings::debugLog('rC: class='.$theActorClass.', exist?='.class_exists($theActorClass));
 		if (class_exists($theActorClass)) {
-			$theAction = (!empty($anAction)) ? $anAction : $theActorClass::DEFAULT_ACTION;
+			$theAction = $theActorClass::getDefaultAction($anAction);
 			try {
 				$theMethod = new ReflectionMethod($theActorClass,$theAction);
 				//if no exception, instantiate the class and call the method
@@ -275,13 +289,20 @@ class Director extends BaseDirector implements ArrayAccess {
 		$theModelClass = self::getModelClass($aModelClass);
 		if (class_exists($theModelClass)) {
 			if (empty($this->_propMaster[$theModelClass])) {
-				$this->_propMaster[$theModelClass]['model'] = new $theModelClass($this);
-				$this->_propMaster[$theModelClass]['ref_count'] = 0;
+				try {
+					$this->_propMaster[$theModelClass] = array(
+							'model' => new $theModelClass($this),
+							'ref_count' => 0,
+					);
+				} catch (Exception $e) {
+					$this->debugLog(__METHOD__.' '.$e->getMessage());
+					return;
+				}
 			}
 			$this->_propMaster[$theModelClass]['ref_count'] += 1;
 			return $this->_propMaster[$theModelClass]['model'];
 		} else {
-			Strings::debugLog(__NAMESPACE__.': cannot find Model class: '.$theModelClass);
+			$this->debugLog(__METHOD__.' cannot find Model class: '.$theModelClass);
 		}
 	}
 	
@@ -423,17 +444,17 @@ class Director extends BaseDirector implements ArrayAccess {
 	//=                   LOGIN INFO                            =
 	//===========================================================
 	
-	public function admitAudience() {
+	public function admitAudience($aScene) {
 		if ($this->canCheckTickets()) {
-			$this->auth = $this->getProp('Auth'); //director will close this on cleanup
-			return $this->auth->checkTicket();
+			$this->dbAuth = $this->getProp('Auth'); //director will close this on cleanup
+			return $this->dbAuth->checkTicket($aScene);
 		}
 		return false;
 	}
 	
 	public function isAllowed($aNamespace, $aPermission, $acctInfo=null) {
-		if (isset($this->auth))
-			return $this->auth->isAllowed($aNamespace, $aPermission, $acctInfo);
+		if (isset($this->dbAuth))
+			return $this->dbAuth->isAllowed($aNamespace, $aPermission, $acctInfo);
 		else
 			return false;
 	}
@@ -441,15 +462,14 @@ class Director extends BaseDirector implements ArrayAccess {
 	public function isGuest() {
 		$theAcctInfo =& $this->account_info;
 		if (empty($theAcctInfo)) {
-			$theAcctInfo['account_id'] = 0;
-			$theAcctInfo['groups'] = array(0); //if still no account, use group_id = 0.
+			$theAcctInfo = new AccountInfoCache();
 		}
 		//$this->debugPrint($this->debugStr($theAcctInfo));
-		if (isset($this->auth) && $this->auth->isCallable('isGuest')) {
-			return $this->auth->isGuest($theAcctInfo);
+		if (isset($this->dbAuth) && $this->dbAuth->isCallable('isGuest')) {
+			return $this->dbAuth->isGuest($theAcctInfo);
 		} else {
-			if (!empty($theAcctInfo) && !empty($theAcctInfo['account_id']) && !empty($theAcctInfo['groups'])) {
-				return ( array_search(0, $theAcctInfo['groups'], true) !== false );
+			if (!empty($theAcctInfo) && !empty($theAcctInfo->account_id) && !empty($theAcctInfo->groups)) {
+				return ( array_search(0, $theAcctInfo->groups, true) !== false );
 			} else {
 				return true;
 			}
@@ -457,8 +477,8 @@ class Director extends BaseDirector implements ArrayAccess {
 	}
 	
 	public function logout() {
-		if (!$this->isGuest() && isset($this->auth)) {
-			$this->auth->ripTicket();
+		if (!$this->isGuest() && isset($this->dbAuth)) {
+			$this->dbAuth->ripTicket();
 			unset($this->account_info);
 		}
 		return BITS_URL;
@@ -486,8 +506,8 @@ class Director extends BaseDirector implements ArrayAccess {
 	 * @return string URL of the forum, if any.
 	 */
 	public function getForumUrl() {
-		if ($this->auth->isCallable('getForumUrl')) {
-			return $this->auth->getForumUrl();
+		if ($this->dbAuth->isCallable('getForumUrl')) {
+			return $this->dbAuth->getForumUrl();
 		} else {
 			return "";
 		}

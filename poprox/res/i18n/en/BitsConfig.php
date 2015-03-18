@@ -1,4 +1,20 @@
 <?php
+/*
+ * Copyright (C) 2015 Blackmoon Info Tech Services
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 namespace BitsTheater\res\en;
 use BitsTheater\res\Config as BaseResources;
 use BitsTheater\costumes\ConfigSettingInfo;
@@ -23,18 +39,27 @@ class BitsConfig extends BaseResources {
 	
 	public $label_site = array(
 			'mode' => 'Operating Mode',
+			'mmr' => 'Managed Media Root',
 	);
 	public $desc_site = array(
 			'mode' => 'Normal is the standard operation mode; Maintenance will refuse connections; Demo/Kiosk mode will favor local resources.',
+			'mmr' => 'Managed media files will be located under the specified server file path (usually located outside www root)',
 	);
 	public $input_site = array(
 			'mode' => array(
 					'type' => ConfigSettingInfo::INPUT_DROPDOWN,
+					'is_editable' => true,
+					'default' => 'normal',
 					'values' => array(
 							'normal' => 'Normal',
 							'maintenance' => 'Maintenance',
 							'demo' => 'Demo/Kiosk',
 					),
+			),
+			'mmr' => array(
+					'type' => ConfigSettingInfo::INPUT_STRING,
+					'is_editable' => false,
+					'default' => '',
 			),
 	);
 	
@@ -42,18 +67,59 @@ class BitsConfig extends BaseResources {
 			'register_url' => 'Registration URL',
 			'login_url' => 'Login URL',
 			'logout_url' => 'Logout URL',
+			'cookie_freshness_duration' => 'Cookie Freshness Duration'
 	);
 	public $desc_auth = array(
 			'register_url' => 'URL for the registration page.',
 			'login_url' => 'URL for the login page.',
 			'logout_url' => 'URL for the logout page.',
+			'cookie_freshness_duration' => 'Login cookies stay valid only so long.'
 	);
-	/* all strings for now, and that's the default type so no need to define anything yet.
 	public $input_auth = array(
-		
+			'register_url' => array(
+					'type' => ConfigSettingInfo::INPUT_STRING,
+					'default' => 'account/register',
+					'is_editable' => false,
+			),
+			'login_url' => array(
+					'type' => ConfigSettingInfo::INPUT_STRING,
+					'default' => 'account/login',
+					'is_editable' => false,
+			),
+			'logout_url' => array(
+					'type' => ConfigSettingInfo::INPUT_STRING,
+					'default' => 'account/logout',
+					'is_editable' => false,
+			),
+			'cookie_freshness_duration' => array(
+					'type' => ConfigSettingInfo::INPUT_DROPDOWN,
+					'is_editable' => true,
+					'default' => 'duration_1_month',
+					'values' => array(
+							'duration_0' => 'Do not use cookies!',
+							'duration_1_day' => '1 Day',
+							'duration_1_week' => '1 Week',
+							'duration_1_month' => '1 Month',
+							'duration_3_months' => '3 Months',
+							'duration_forever' => 'Never go stale (not recommended)',
+					),
+			),
 	);
-	*/
 
+	/**
+	 * Some resources need to be initialized by running code rather than a static definition.
+	 * Merging Enums with their UI counterparts is common.
+	 */
+	public function setup($aDirector) {
+		$theVHN = VIRTUAL_HOST_NAME;
+		if (!empty($theVHN)) {
+			//define the site/mmr/default before it gets merged by parent::setup()
+			$this->input_site['mmr']['default'] = dirname(strstr(BITS_PATH, ¦.$theVHN, true)).¦.'mmr'.¦.$theVHN.¦;
+			//.../www/myhost/ -> .../mmr/myhost/
+		}
+		parent::setup($aDirector);
+	}
+	
 }//end class
 
 }//end namespace
