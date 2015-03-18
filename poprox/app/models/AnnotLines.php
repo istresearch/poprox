@@ -36,7 +36,7 @@ class AnnotLines extends BaseModel {
 			$theSql = "CREATE TABLE IF NOT EXISTS {$this->tnPhoneList} (".
   					"`annot_id` int(11) NOT NULL AUTO_INCREMENT,".
   					"`raw_text` text NOT NULL COMMENT 'the raw line of text',".
-  					"PRIMARY KEY (`id`)".
+  					"PRIMARY KEY (`annot_id`)".
 					") ENGINE=InnoDB  DEFAULT CHARSET=utf8";
 			/*$theSql = "CREATE TABLE IF NOT EXISTS {$this->tnPhoneList} ".
 					"( phone_id INT(11) NOT NULL AUTO_INCREMENT".
