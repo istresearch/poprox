@@ -234,6 +234,13 @@ class Ads extends Actor {
 		$this->renderThisView = 'json_response';
 	}
 	
+	public function ajaxToggleBlurPhotos() {
+		$this->viewToRender('_blank');
+		if (!$this->isGuest()) {
+			$this->director['blur_ad_photos'] = !($this->director['blur_ad_photos']);
+		}
+	}
+	
 }//end class
 
 }//end namespace

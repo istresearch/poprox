@@ -157,11 +157,39 @@ table#memex-ad-extended td.label {
 
 table#memex-ad-extended tr.section-header {
 	vertical-align: bottom;
-} 
+}
 
-/*
+img.border-above-bottom {
+	border-top-style:double;
+	border-bottom-style:double;
+	padding-top:4px;
+	padding-bottom:4px;
+	border-top-color:#91278F;
+	border-bottom-color:#91278F;
+	border-top-width:8px;
+	border-bottom-width:8px;
+}
+
+img.border-ridge {
+	border-style: ridge;
+	border-color: #91278F;
+	border-width: 4px;
+}
+
+img.memex-ad-photo {
+	width:128px;
+	margin:4px;
+}
+
+img.memex-ad-photo.blur {
+	-webkit-filter: blur(10px);
+	filter: blur(10px);
+}
+
+
+/***************
  * QRox 
- */
+ ***************/
 table#qrox-results {
 
 }

@@ -10,6 +10,7 @@ use \PDOStatement;
 use \PDOException;
 use \DateTime;
 use \DateInterval;
+use BitsTheater\costumes\SqlBuilder;
 {//namespace begin
 
 class MemexHt extends BaseModel {
@@ -752,32 +753,76 @@ CREATE TABLE IF NOT EXISTS `ads_attributes` (
 		}
 		return $theResult;
 	}
-
+	
 	/**
-	 * Get the photos associated witn an ad.
-	 * @param int $aRoxyId - the Roxy ID
+	 * Get the subset of photos associated witn an ad via the Image Attribute table.
+	 * @param int $aMemexId - the ad id given by memex (formerly known as roxy_id).
 	 * @throws DbException
 	 * @return array Returns an array of photo urls or array() if none found.
 	 */
-	public function getAdPhotos($aRoxyId) {
+	protected function getAdImagesFromImageAttr($aMemexId) {
 		$theResult = array();
-		if (!empty($this->db) && !empty($aRoxyId)) try {
-			$theRoxyId = $aRoxyId+0;
-			$rs = null;
-			$myFinally = FinallyCursor::forDbCursor($rs);
-	
-			$theParams = array();
-			$theParamTypes = array();
-			$theSql = 'SELECT replace(location,\'?\',\'%3F\') AS imgsrc FROM '.$this->tnImages.' WHERE ads_id=:roxy_id';
-			$theSql .= ' AND location IS NOT NULL';
-			$theParams['roxy_id'] = $theRoxyId;
-			$theParamTypes['roxy_id'] = PDO::PARAM_INT;
-			$rs = $this->query($theSql,$theParams,$theParamTypes);
-			$theResult = $rs->fetchAll(PDO::FETCH_COLUMN,0);
-			$rs->closeCursor();
-	
+		if ($this->isConnected() && !empty($aMemexId)) try {
+			$ps = null;
+			$myFinally = FinallyCursor::forDbCursor($ps);
+			
+			$theSql = SqlBuilder::withModel($this)->obtainParamsFrom(array(
+					'attribute' => 'ads_id',
+					'value' => $aMemexId,
+			));
+			$theSql->add('SELECT replace(i.location,\'?\',\'%3F\') AS imgsrc');
+			$theSql->add('FROM')->add($this->tnImageAttrs)->add('AS ia');
+			$theSql->add('JOIN')->add($this->tnImages)->add('AS i ON ia.images_id=i.id');
+			$theSql->startWhereClause();
+			$theSql->mustAddParam('value');
+			$theSql->setParamPrefix(' AND ');
+			$theSql->mustAddParam('attribute');
+			/**/
+			$theSql->endWhereClause();
+			//$this->debugLog(__METHOD__.' sql='.$this->debugStr($theSql));
+			$ps = $theSql->query();
+			$theResult = $ps->fetchAll(PDO::FETCH_COLUMN,0);
+			foreach ($theResult as &$theImageUrl) {
+				if (empty($theImageUrl))
+					unset($theImageUrl);
+			}
+			$ps->closeCursor();
 		} catch (PDOException $pdoe) {
-			throw new DbException($pdoe, 'getAdPhotos='.$theRoxyId.' failed.');
+			throw new DbException($pdoe, __METHOD__.'('.$aMemexId.') failed. '.$pdoe->getMessage());
+		}
+		return $theResult;
+	}
+
+	/**
+	 * Get the photos associated witn an ad.
+	 * @param int $aMemexId - the ad id given by memex (formerly known as roxy_id).
+	 * @throws DbException
+	 * @return array Returns an array of photo urls or array() if none found.
+	 */
+	public function getAdPhotos($aMemexId) {
+		$theResult = array();
+		if ($this->isConnected() && !empty($aMemexId)) try {
+			$ps = null;
+			$myFinally = FinallyCursor::forDbCursor($ps);
+			
+			$theSql = SqlBuilder::withModel($this)->obtainParamsFrom(array(
+					'ads_id' => $aMemexId,
+			));
+			$theSql->add('SELECT replace(location,\'?\',\'%3F\') AS imgsrc FROM')->add($this->tnImages);
+			$theSql->startWhereClause();
+			$theSql->mustAddParam('ads_id', 0, PDO::PARAM_INT);
+			$theSql->endWhereClause();
+			//$this->debugLog(__METHOD__.' sql='.$this->debugStr($theSql));
+			$ps = $theSql->query();
+			$theResult = $ps->fetchAll(PDO::FETCH_COLUMN,0);
+			foreach ($theResult as &$theImageUrl) {
+				if (empty($theImageUrl))
+					unset($theImageUrl);
+			}
+			$theResult = array_merge($theResult, $this->getAdImagesFromImageAttr($aMemexId));
+			$ps->closeCursor();
+		} catch (PDOException $pdoe) {
+			throw new DbException($pdoe, __METHOD__.'('.$aMemexId.') failed. '.$pdoe->getMessage());
 		}
 		return $theResult;
 	}

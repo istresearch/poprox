@@ -6,6 +6,7 @@ use com\blackmoonit\Strings;
 use com\blackmoonit\Widgets;
 $recite->includeMyHeader();
 
+$theToggleBlurUrl = $v->getSiteURL('ads/ajaxToggleBlurPhotos');
 $jsCode = <<<EOD
 function showElement(id) {
 	//document.getElementById(id).style.visibility="visible";
@@ -20,6 +21,18 @@ function hideElement(id) {
 	document.getElementById(id+"_show").style.visibility="visible";
 	document.getElementById(id+"_hide").style.visibility="hidden";
 }
+		
+function toggleBlurPhotos() {
+	$(".memex-ad-photo").toggleClass("blur");
+	$.post("{$theToggleBlurUrl}");
+}
+
+function onKeyUp(e) {
+	if (e.keyCode == 120 || e.keyCode == 88) {
+		toggleBlurPhotos();
+	}
+}
+document.addEventListener('keyup', onKeyUp, false);
 
 EOD;
 /*
@@ -133,12 +146,13 @@ if (!empty($theData)) {
 	$w .= '<tr><td colspan="2" class="revisions"><span class="pager">Revisions: </span>'.$v->getAdRevisionPagerHtml($v->listRevIds, $v->current_rev_index).'</td></tr>';
 	$w .= '<tr><td valign="top">';
 	if (!empty($theData['photos'])) {
-		foreach ((array)$theData['photos'] as $thePhotoURL) {
+		foreach ($theData['photos'] as $thePhotoURL) {
 			$w .= '<a href="'.$thePhotoURL.'" target="_blank">';
+			$thePhotoClasses = 'memex-ad-photo border-ridge'.($v->getDirector()['blur_ad_photos'] ? ' blur' : '');
 			if ($v->getSiteMode()!=$v::SITE_MODE_DEMO) {
-				$w .= '<img src="'.$thePhotoURL.'" alt="'.$thePhotoURL.'" width="128px" />';
+				$w .= '<img src="'.$thePhotoURL.'" alt="'.$thePhotoURL.'" class="'.$thePhotoClasses.'" />';
 			} else {
-				$w .= '<img src="'.BITS_RES.'/images/example_'.rand(0,5).'.png" alt="'.$thePhotoURL.'" width="128px" />';
+				$w .= '<img src="'.BITS_RES.'/images/example_'.rand(0,5).'.png" alt="'.$thePhotoURL.'" class="'.$thePhotoClasses.'" />';
 			}
 			$w .= '</a>';
 			$w .= "<br />\n";
@@ -197,6 +211,7 @@ if (!empty($theData)) {
 	//fixed data, attribute info table
 	//=====
 	$w .= '<table id="memex-ad-primary" class="">';
+	$w .= '<tr><td class="label">URL</td>'.'<td><a href="'.$theData['url'].'" target="_blank">'.$theData['url'].'</a>'.'</td></tr>'."\n";
 	$w .= '<tr><td class="label">City</td>'.'<td>'.$theData['city'].'</td></tr>'."\n";
 	$w .= '<tr><td class="label">State</td>'.'<td>'.$theData['state'].'</td></tr>'."\n";
 	$w .= '<tr><td class="label">Region</td>'.'<td>'.$theData['region'].'</td></tr>'."\n";

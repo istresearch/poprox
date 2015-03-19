@@ -1,6 +1,7 @@
 <?php
 namespace BitsTheater\res\en;
 use BitsTheater\res\Website as BaseResources;
+use com\blackmoonit\Arrays;
 {//begin namespace
 
 class Website extends BaseResources {
@@ -29,9 +30,9 @@ class Website extends BaseResources {
 		//we do not want the following libs universally loaded, case by case only
 		//Bootstrap
 		unset($this->css_load_list['bootstrap/css/bootstrap.css']);
-		unset($this->js_libs_load_list['bootstrap/js/bootstrap.min.js']);
+		Arrays::removeValue($this->js_libs_load_list, 'bootstrap/js/bootstrap.min.js');
 		//Bootbox
-		unset($this->js_libs_load_list['bootbox/bootbox.js']);
+		Arrays::removeValue($this->js_libs_load_list, 'bootbox/bootbox.js');
 
 		//NULL path means use default lib path
 		$this->res_array_merge($this->js_load_list, array(
