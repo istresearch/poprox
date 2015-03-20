@@ -15,3 +15,20 @@ docker run -it --rm -p 80:80 --name poprox-run \
 poprox /var/www/html/run-poprox
 
 http://<hostname>/poprox
+
+updating poprox Docker container
+=================================
+login to guan
+
+$ git pull or clone poprox into your home folder
+$ cd poprox
+$ docker build -t memex/poprox:20150320 .
+$ docker push memex/poprox:20150320
+
+NOTE: the dot (.) at the end of the docker build line is important!
+NOTE: update the 20150320 to the current date.
+After pushing up to Docker, on guan:
+edit /usr/local/bin/poprox and update the tag to the new version.
+Then just run /usr/local/bin/poprox
+
+{end.}
