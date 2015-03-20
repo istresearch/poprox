@@ -28,6 +28,7 @@ class MenuInfo extends BaseResources {
 	public $menu_item_view_monitoring;
 	public $menu_item_view_ads;
 	public $menu_item_view_reviews;
+	public $menu_item_view_sources;
 	
 	public $menu_item_view_dash_ingest;
 	public $menu_item_view_dash_spider;
@@ -149,7 +150,6 @@ class MenuInfo extends BaseResources {
 				->filter('&right@roxy/dashboard')
 				->gone(true)
 		;
-		
 		$this->menu_item_view_ads = MenuItemResEntry::makeEntry($aDirector,'view_ads')
 				->link(BITS_URL.'/ads/view')
 				->label('&res@roxy/menu_label_view_ads')
@@ -160,6 +160,11 @@ class MenuInfo extends BaseResources {
 				->label('&res@roxy/menu_label_view_reviews')
 				->filter('&right@roxy/view_data')
 				->gone(true)
+		;
+		$this->menu_item_view_sources = MenuItemResEntry::makeEntry($aDirector,'view_sources')
+				->link(BITS_URL.'/ad_sources/get_list')
+				->label('&res@roxy/menu_label_view_sources')
+				->filter('&right@roxy/monitoring')
 		;
 		
 		//app menu defined here so that updates to main program will not affect derived menus
@@ -194,6 +199,7 @@ class MenuInfo extends BaseResources {
 				'view_reviews' => $this->menu_item_view_reviews,
 				//'view_stats_dash_ingest' => $this->menu_item_view_dash_ingest, //do not want to use real-time stats
 				//'view_stats_dash_spider' => $this->menu_item_view_dash_spider, //merged into view_monitoring
+				'view_sources' => $this->menu_item_view_sources,
 		);
 		
 		$this->menu_qrox = array(

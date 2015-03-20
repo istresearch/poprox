@@ -37,7 +37,12 @@ $w .= $r."</tr>\n";
 
 
 foreach ($v->results as $theSourceName => &$theSourceData) {
-	$theDisplayName = $theSourceData['display_name'];
+	if (!empty($theSourceData['source_info']['source_id'])) {
+		$theDisplayName = '<a href="'.$v->getSiteURL('ad_sources/view/'.$theSourceData['source_info']['source_id']).'">'.
+				$theSourceData['display_name'].'</a>';
+	} else {
+		$theDisplayName = $theSourceData['display_name'];
+	}
 	$theStatsInfo =& $theSourceData['stats_info'];
 	
 	//reset the rowclass stripes
@@ -48,9 +53,10 @@ foreach ($v->results as $theSourceName => &$theSourceData) {
 		$theTsId = Strings::createUUID();
 		$jsCode .= Widgets::cnvUtcTs2LocalStr($theTsId, $theStatsTs);
 		$r = '<span id="'.$theTsId.'">'.$theStatsTs.'</span>';
-		
-		$w .= '<tr><td colspan="42" class="stat-ts">calculated: '.$r.'</td></tr>';
+	} else {
+		$r = 'never';
 	}
+	$w .= '<tr><td colspan="42" class="stat-ts">calculated: '.$r.'</td></tr>';
 	
 	//row data totals
 	$r = '<tr class="'.$v->_rowClass.'">';

@@ -24,6 +24,7 @@ class Roxy extends BaseResources {
 	public $menu_label_view_reviews = 'Reviews';
 	public $menu_label_view_dash_ingest = 'Ingest Stats';
 	public $menu_label_view_dash_spider = 'Spiders';
+	public $menu_label_view_sources = 'Sources';
 	public $menu_label_poprox_redbook = 'myRedBook';
 	public $menu_label_poprox_backpage = 'backpage';
 	public $menu_label_poprox_myproviderguide = 'My Provider Guide';

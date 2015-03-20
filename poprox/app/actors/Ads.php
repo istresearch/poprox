@@ -41,7 +41,6 @@ class Ads extends Actor {
 			if (!empty($v->prevRevId))
 				$v->prev_ad_info = $dbRoxyAds->getCompleteAd($v->prevRevId);
 		} else {
-			//$v->addUserMsg('Ad with MemexID '.$theRoxyId.' does not exist in this database.');
 			return $v->getMyUrl('view');
 		}
 		//display this particular html page to view
@@ -84,10 +83,11 @@ class Ads extends Actor {
 		$theRoxyId = (!empty($v->jumpto_roxy_id) ? $v->jumpto_roxy_id : $aRoxyId);
 
 		//page may render system message if ID is not found
-		if (!empty($theRoxyId) && !$dbRoxyAds->isExistAd($theRoxyId)) {
-			$v->addUserMsg('Memex ID '.$theRoxyId.' not found.');
+		if ($v->getSiteMode()!=$v::SITE_MODE_DEMO) {
+			if (!empty($theRoxyId) && !$dbRoxyAds->isExistAd($theRoxyId)) {
+				$v->addUserMsg('Memex ID '.$theRoxyId.' not found.');
+			}
 		}
-		
 		return $this->view_ad($aRoxyId);
 	}
 	

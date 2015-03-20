@@ -154,8 +154,16 @@ CREATE TABLE IF NOT EXISTS `sources_attributes` (
 			if (!empty($theResultSet)) {
 				foreach($theResultSet as &$theRow) {
 					$this->normalizeSourceRow($theRow);
-					if ($bIncludeAttributes)
+					if ($bIncludeAttributes) {
 						$theRow['attributes'] = $this->getSourceAttrs($theRow['source_id']);
+						foreach ($theRow['attributes'] as $theAttrRow) {
+							if ($theAttrRow['attribute']=='display_name' && 
+									$theAttrRow['regex']!=1 && !empty($theAttrRow['value'])) {
+								$theRow['display_name'] = $theAttrRow['value'];
+								break;
+							}
+						}
+					}
 				}
 			}
 			$rs->closeCursor();
@@ -194,7 +202,7 @@ CREATE TABLE IF NOT EXISTS `sources_attributes` (
 					$theSql .= ' AND '.$theSqlWhereFragment;
 				}
 			}
-			$theSql .= ' ORDER BY attribute';
+			$theSql .= ' ORDER BY regex, regexpriority, attribute, value';
 			$rs = $this->query($theSql,$theParams,$theParamTypes);
 			while (($theRow = $rs->fetch()) !== false) {
 				$this->normalizeSourceAttrRow($theRow);

@@ -176,14 +176,20 @@ img.border-ridge {
 	border-width: 4px;
 }
 
+td.memex-ad-photos {
+	text-align:center;
+	min-width:144px;
+	vertical-align:top;
+}
+
 img.memex-ad-photo {
 	width:128px;
 	margin:4px;
 }
 
 img.memex-ad-photo.blur {
-	-webkit-filter: blur(10px);
-	filter: blur(10px);
+	-webkit-filter: blur(5px);
+	filter: blur(5px);
 }
 
 

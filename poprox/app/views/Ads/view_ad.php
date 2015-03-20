@@ -144,8 +144,9 @@ if (!empty($theData)) {
 		$w .= '</td></tr>';
 	}
 	$w .= '<tr><td colspan="2" class="revisions"><span class="pager">Revisions: </span>'.$v->getAdRevisionPagerHtml($v->listRevIds, $v->current_rev_index).'</td></tr>';
-	$w .= '<tr><td valign="top">';
+	$w .= '<tr><td class="memex-ad-photos">';
 	if (!empty($theData['photos'])) {
+		$w .= '<button id="toggle_blur" type="button" onClick="toggleBlurPhotos()">Tap X or Click Here<br>to toggle blur</button><br>'."\n";
 		foreach ($theData['photos'] as $thePhotoURL) {
 			$w .= '<a href="'.$thePhotoURL.'" target="_blank">';
 			$thePhotoClasses = 'memex-ad-photo border-ridge'.($v->getDirector()['blur_ad_photos'] ? ' blur' : '');
@@ -158,7 +159,7 @@ if (!empty($theData)) {
 			$w .= "<br />\n";
 		}
 	} else {
-		$w .= 'No&nbsp;photos.';
+		$w .= '<br><br><i>No&nbsp;photos&nbsp;found.</i><br><br>';
 	}
 	$w .= '</td>'."\n";
 	$w .= '<td  valign="top">';

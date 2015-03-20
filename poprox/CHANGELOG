@@ -3,7 +3,11 @@
 * New HTTP Authentication method available involving token exchanges.
 * Class restructuring to better support file-compare-merge updates.
 * Website setting for when login cookies go stale.
-* (JIRA ticket fixes will go here)
+* MEM-398 - ad URL shown in a plain text link as part of the data as well as SiteID link.
+* MEM-383 - all photos for an ad are now being displayed.
+* MEM-225 - Website operating mode of DEMO will now surpress "Memex ID not found" messages.
+* MEM-224 - Photo blur feature available (click button, tap "x" to toggle, lasts until logout).
+* MEM-405 - Display Source information (added View > Sources menu and webpage).
 2015-Feb-11 v2.3.1
 * Resource files renamed to better support file-compare-merge updates.
 * SqlBuilder class handles more complex cases.

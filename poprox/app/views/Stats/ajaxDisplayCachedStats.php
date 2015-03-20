@@ -36,7 +36,12 @@ $w .= $r."</tr>\n";
 
 
 foreach ($v->results as $theSourceName => &$theSourceData) {
-	$theDisplayName = $theSourceData['display_name'];
+	if (!empty($theSourceData['source_info']['source_id'])) {
+		$theDisplayName = '<a href="'.$v->getSiteURL('ad_sources/view/'.$theSourceData['source_info']['source_id']).'">'.
+				$theSourceData['display_name'].'</a>';
+	} else {
+		$theDisplayName = $theSourceData['display_name'];
+	}
 	$theStatsInfo =& $theSourceData['stats_info'];
 	
 	//reset the rowclass stripes
