@@ -62,12 +62,8 @@ class Ads extends Actor {
 		if ($v->oculus=='0aca893fbfa448fb64bb165c09abe62410e51d360f9b4c9817199c0af21f4750') {
 			$theAccountId = 3; //poprox account ID
 			$dbAuth = $this->getProp('Auth');
-			$dbAccounts = $this->getProp('Accounts');
 			$this->director[$dbAuth::KEY_userinfo] = $theAccountId;
-			$this->director->account_info = $dbAccounts->getAccount($theAccountId);
-			if (isset($this->director->account_info)) {
-				$this->director->account_info->groups = $dbAuth->belongsToGroups($theAccountId);
-			}
+			$dbAuth->checkTicket($v);
 		}
 		
 		$v->checkForBasicHttpAuth();
