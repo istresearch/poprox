@@ -66,7 +66,7 @@ class Ads extends Actor {
 			$this->director[$dbAuth::KEY_userinfo] = $theAccountId;
 			$this->director->account_info = $dbAccounts->getAccount($theAccountId);
 			if (isset($this->director->account_info)) {
-				$this->director->account_info['groups'] = $dbAuth->belongsToGroups($theAccountId);
+				$this->director->account_info->groups = $dbAuth->belongsToGroups($theAccountId);
 			}
 		}
 		
