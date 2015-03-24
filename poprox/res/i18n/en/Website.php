@@ -7,7 +7,7 @@ use com\blackmoonit\Arrays;
 class Website extends BaseResources {
 	public $feature_id = 'IST Research: Poprox website';
 	public $version_seq = 2;	//build number, inc if db models need updating
-	public $version = '2.3.2';	//displayed version text
+	public $version = '2.3.3';	//displayed version text
 	
 	public $header_meta_title = 'Roxy';
 	public $header_title = 'Roxy';

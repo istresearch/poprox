@@ -67,7 +67,6 @@ class Ads extends Actor {
 			$this->director->account_info = $dbAccounts->getAccount($theAccountId);
 			if (isset($this->director->account_info)) {
 				$this->director->account_info['groups'] = $dbAuth->belongsToGroups($theAccountId);
-				$dbAuth->updateCookie($theAccountId);
 			}
 		}
 		

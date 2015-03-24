@@ -1,3 +1,5 @@
+2015-Mar-24 v2.3.3
+* Fixed bug in deprecated Uncharted login.
 2015-Mar-18 v2.3.2
 * Security updates on defense for various attacks involving login and registration.
 * New HTTP Authentication method available involving token exchanges.
