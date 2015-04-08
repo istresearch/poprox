@@ -1,8 +1,7 @@
 <?php
 namespace BitsTheater\actors;
-use BitsTheater\Actor;
-use BitsTheater\Scene as MyScene;
-	/* @var $v MyScene */
+use BitsTheater\actors\Understudy\Home as BaseActor;
+use BitsTheater\Scene as MyScene; /* @var $v MyScene */
 use ISTResearch_Roxy\models\RoxyCore;
 	/* @var $dbSiteRoxy¿¿¿ RoxyCore */
 use ISTResearch_Roxy\models\Spiders;
@@ -14,7 +13,7 @@ use ISTResearch_Roxy\models\RoxyStats;
 use com\blackmoonit\Strings;
 {//namespace begin
 
-class Home extends Actor {
+class Home extends BaseActor {
 	const DEFAULT_ACTION = 'view';
 
 	public function view() {
