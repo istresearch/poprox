@@ -150,10 +150,13 @@ if (!empty($theData)) {
 		foreach ($theData['photos'] as $thePhotoURL) {
 			$w .= '<a href="'.$thePhotoURL.'" target="_blank">';
 			$thePhotoClasses = 'memex-ad-photo border-ridge'.($v->getDirector()['blur_ad_photos'] ? ' blur' : '');
-			if ($v->getSiteMode()!=$v::SITE_MODE_DEMO) {
+			if ($v->getSiteMode()!=$v::SITE_MODE_DEMO
+					|| !file_exists(BITS_RES_PATH.'images/example_0.png')
+					|| file_exists(BITS_RES_PATH.'images/use-db-url')
+			) {
 				$w .= '<img src="'.$thePhotoURL.'" alt="'.$thePhotoURL.'" class="'.$thePhotoClasses.'" />';
 			} else {
-				$w .= '<img src="'.BITS_RES.'/images/example_'.rand(0,5).'.png" alt="'.$thePhotoURL.'" class="'.$thePhotoClasses.'" />';
+				$w .= '<img src="'.BITS_RES.'/images/example_'.rand(0,35).'.png" alt="'.$thePhotoURL.'" class="'.$thePhotoClasses.'" />';
 			}
 			$w .= '</a>';
 			$w .= "<br />\n";
