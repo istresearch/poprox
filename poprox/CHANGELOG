@@ -1,5 +1,10 @@
+2015-Apr-17 v2.3.4
+* Framework update which moves website specific definitions out of the langages folder and into the res folder.
+* The framework update allows version numbers, css and js files, and many other items get defined once instead of per language.
+2015-Apr-16 v2.3.3
+* Ad photos load the URL from the db if local example images are missing or the magic "use-db-url" exists.
 2015-Apr-08 v2.3.3
-* Framwork update (bugfixes)
+* Framework update (bugfixes)
 2015-Mar-24 v2.3.3
 * Fixed bug in deprecated Uncharted login.
 2015-Mar-18 v2.3.2
