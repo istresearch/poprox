@@ -4,6 +4,7 @@ use BitsTheater\Scene as MyScene;
 /* @var $v MyScene */
 use com\blackmoonit\Widgets;
 use com\blackmoonit\Strings;
+use ISTResearch_Roxy\models\MemexHt; /* @var $dbMemexHt MemexHt */
 $recite->includeMyHeader();
 $w = '';
 $jsCode = <<<EOD
@@ -30,17 +31,31 @@ $r .= '<th class="">Name</th>';
 $r .= '<th class="">Scrape Delay</th>';
 $w .= $r."</tr>\n";
 
+print($w);
+unset($w); //free up memory
 
-foreach ($v->results as $theSourceInfo) {
-	$theDisplayName = $theSourceInfo['display_name'];
+//data has gotten too big to fit into memory, we need to render as we get data now.
+$dbMemexHt = $v->dbMemexHt;
+$theSourceCursor = $dbMemexHt->getSourceInfoCursor();
+if (!empty($theSourceCursor)) {
+	$theSourceInfo = $dbMemexHt->fetchSourceInfo($theSourceCursor, true);
+	while (!emtpy($theSourceInfo)) {
+		$theDisplayName = $theSourceInfo['display_name'];
+		
+		$r = '<tr class="'.$v->_rowClass.'">';
+		$r .= '<td class=""><a href="'.$v->getMyUrl('view/'.$theSourceInfo['source_id']).'">'.$theSourceInfo['source_id'].'</a></td>';
+		$r .= '<td class=""><a href="'.$v->getMyUrl('view/'.$theSourceInfo['source_id']).'">'.$theDisplayName.'</a></td>';
+		$r .= '<td class="">'.$theSourceInfo['scrapedelay'].'</td>';
+		$r .= "</tr>\n";
+		print($r);
 	
-	$r = '<tr class="'.$v->_rowClass.'">';
-	$r .= '<td class=""><a href="'.$v->getMyUrl('view/'.$theSourceInfo['source_id']).'">'.$theSourceInfo['source_id'].'</a></td>';
-	$r .= '<td class=""><a href="'.$v->getMyUrl('view/'.$theSourceInfo['source_id']).'">'.$theDisplayName.'</a></td>';
-	$r .= '<td class="">'.$theSourceInfo['scrapedelay'].'</td>';
-	$w .= $r."</tr>\n";
-
+		$theSourceInfo = $dbMemexHt->fetchSourceInfo($theSourceCursor, true);
+	}
 }
+
+//back to our regularly scheduled page rendering
+$w = '';
+
 $w .= '</table>';
 
 $w .= str_repeat('<br />',8);

@@ -179,6 +179,46 @@ CREATE TABLE IF NOT EXISTS `sources_attributes` (
 	}
 
 	/**
+	 * Return Source data cursor (useful if data exceeds memory to load entire table info).
+	 * @throws DbException
+	 * @return PDOStatement Returns the query statement object used to retrieve result records.
+	 */
+	public function getSourceInfoCursor() {
+		if (!empty($this->db)) try {
+			$theSql = SqlBuilder::withModel($this);
+			$theSql->startWith('SELECT * FROM')->add($this->tnSources);
+			$theSql->add('ORDER by name');
+			return $theSql->query();
+		} catch (PDOException $pdoe) {
+			throw new DbException($pdoe, __METHOD__.' failed.');
+		}
+	}
+	
+	/**
+	 * Fetch the next row from the cursor and optionally get the attributes as well.
+	 * @param PDOStatement $aSourceRowCursor - result data to retrieve.
+	 * @param boolean $bIncludeAttributes - (optional) TRUE will load values from attribute table, too.
+	 * @return array Returns the row data in an associative array.
+	 */
+	public function fetchSourceInfo(PDOStatement $aSourceInfoCursor, $bIncludeAttributes=false) {
+		$theRow = $aSourceInfoCursor->fetch();
+		if (!empty($theRow)) {
+			$this->normalizeSourceRow($theRow);
+			if ($bIncludeAttributes) {
+				$theRow['attributes'] = $this->getSourceAttrs($theRow['source_id']);
+				foreach ($theRow['attributes'] as $theAttrRow) {
+					if ($theAttrRow['attribute']=='display_name' &&
+							$theAttrRow['regex']!=1 && !empty($theAttrRow['value'])) {
+						$theRow['display_name'] = $theAttrRow['value'];
+						break;
+					}
+				}
+			}
+		}
+		return $theRow;
+	}
+	
+	/**
 	 * Given a source id, return the attributes for that source.
 	 * @param int $aSourceId - the source id (required)
 	 * @throws DbException

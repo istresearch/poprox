@@ -13,8 +13,7 @@ class AdSources extends BaseActor {
 		//shortcut variable $v also in scope in our view php file.
 		$v =& $this->scene;
 		if ($this->isAllowed('roxy', 'monitoring')) {
-			$dbMemexHt = $this->getProp('MemexHt');
-			$v->results = $dbMemexHt->getSourceInfo(null,true);
+			$v->dbMemexHt = $this->getProp('MemexHt');
 		}
 	}
 	
