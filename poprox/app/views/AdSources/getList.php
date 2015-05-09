@@ -38,7 +38,7 @@ unset($w); //free up memory
 $dbMemexHt = $v->dbMemexHt;
 $theSourceCursor = $dbMemexHt->getSourceInfoCursor();
 if (!empty($theSourceCursor)) {
-	$theSourceInfo = $dbMemexHt->fetchSourceInfo($theSourceCursor, true);
+	$theSourceInfo = $dbMemexHt->fetchSourceInfo($theSourceCursor, false);
 	while (!empty($theSourceInfo)) {
 		$theDisplayName = $theSourceInfo['display_name'];
 		
