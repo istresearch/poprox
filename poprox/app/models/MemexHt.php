@@ -268,10 +268,10 @@ CREATE TABLE IF NOT EXISTS `sources_attributes` (
 	 */
 	public function getSourceAttrCursor($aSourceId, $aFieldList=null, SqlBuilder $aFilter=null, $aSortList=null) {
 		if ($this->isConnected()) try {
-			$theSql = SqlBuilder::withModel($this)->obtainParamsFrom(array('source_id' => $aSourceId));
+			$theSql = SqlBuilder::withModel($this)->obtainParamsFrom(array('sources_id' => $aSourceId));
 			$theSql->startWith('SELECT')->addFieldList($aFieldList)->add('FROM')->add($this->tnSourceAttrs);
 
-			$theSql->startWhereClause()->mustAddParam('source_id', 0, PDO::PARAM_INT);
+			$theSql->startWhereClause()->mustAddParam('sources_id', 0, PDO::PARAM_INT);
 			$theSql->applyFilter($aFilter)->endWhereClause();
 	
 			$theSortList = (!empty($aSortList)) ? $aSortList : array('regex', 'regexpriority', 'attribute', 'value');
