@@ -39,7 +39,7 @@ $dbMemexHt = $v->dbMemexHt;
 $theSourceCursor = $dbMemexHt->getSourceInfoCursor();
 if (!empty($theSourceCursor)) {
 	$theSourceInfo = $dbMemexHt->fetchSourceInfo($theSourceCursor, true);
-	while (!emtpy($theSourceInfo)) {
+	while (!empty($theSourceInfo)) {
 		$theDisplayName = $theSourceInfo['display_name'];
 		
 		$r = '<tr class="'.$v->_rowClass.'">';
