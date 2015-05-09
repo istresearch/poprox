@@ -204,13 +204,16 @@ CREATE TABLE IF NOT EXISTS `sources_attributes` (
 		$theRow = $aSourceInfoCursor->fetch();
 		if (!empty($theRow)) {
 			$this->normalizeSourceRow($theRow);
-			$theFilterList = (!$bIncludeAttributes) ? array("attribute='display_name'") : null;
-			$theRow['attributes'] = $this->getSourceAttrs($theRow['source_id'], $theFilterList);
-			foreach ((array)$theRow['attributes'] as $theAttrRow) {
-				if ($theAttrRow['attribute']=='display_name' &&
-						$theAttrRow['regex']!=1 && !empty($theAttrRow['value'])) {
-					$theRow['display_name'] = $theAttrRow['value'];
-					break;
+			//too dang slow, just use the name in the sources record rather than look for a rare "display_name" attribute
+			if ($bIncludeAttributes) {
+				$theFilterList = (!$bIncludeAttributes) ? array("attribute='display_name'") : null;
+				$theRow['attributes'] = $this->getSourceAttrs($theRow['source_id'], $theFilterList);
+				foreach ((array)$theRow['attributes'] as $theAttrRow) {
+					if ($theAttrRow['attribute']=='display_name' &&
+							$theAttrRow['regex']!=1 && !empty($theAttrRow['value'])) {
+						$theRow['display_name'] = $theAttrRow['value'];
+						break;
+					}
 				}
 			}
 		}
