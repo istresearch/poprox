@@ -1,3 +1,5 @@
+2015-May-09 v2.3.5
+* MEM-514 - fix out of memory error when retrieving Source data for display.
 2015-Apr-17 v2.3.4
 * Framework update which moves website specific definitions out of the langages folder and into the res folder.
 * The framework update allows version numbers, css and js files, and many other items get defined once instead of per language.
