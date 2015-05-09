@@ -48,8 +48,8 @@ if (!empty($theSourceCursor)) {
 		$r .= '<td class="">'.$theSourceInfo['scrapedelay'].'</td>';
 		$r .= "</tr>\n";
 		print($r);
-	
-		$theSourceInfo = $dbMemexHt->fetchSourceInfo($theSourceCursor, true);
+		
+		$theSourceInfo = $dbMemexHt->fetchSourceInfo($theSourceCursor, false);
 	}
 }
 
