@@ -1,6 +1,7 @@
 <?php
 namespace ISTResearch_Roxy\models;
 use BitsTheater\Model as BaseModel;
+use BitsTheater\costumes\SqlBuilder;
 use com\blackmoonit\Strings;
 use com\blackmoonit\database\DbUtils;
 use com\blackmoonit\database\FinallyCursor;
@@ -10,7 +11,6 @@ use \PDOStatement;
 use \PDOException;
 use \DateTime;
 use \DateInterval;
-use BitsTheater\costumes\SqlBuilder;
 {//namespace begin
 
 class MemexHt extends BaseModel {
@@ -184,7 +184,7 @@ CREATE TABLE IF NOT EXISTS `sources_attributes` (
 	 * @return PDOStatement Returns the query statement object used to retrieve result records.
 	 */
 	public function getSourceInfoCursor() {
-		if (!empty($this->db)) try {
+		if ($this->isConnected()) try {
 			$theSql = SqlBuilder::withModel($this);
 			$theSql->startWith('SELECT * FROM')->add($this->tnSources);
 			$theSql->add('ORDER by name');
@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS `sources_attributes` (
 	
 	/**
 	 * Fetch the next row from the cursor and optionally get the attributes as well.
-	 * @param PDOStatement $aSourceRowCursor - result data to retrieve.
+	 * @param PDOStatement $aSourceInfoCursor - result data to retrieve.
 	 * @param boolean $bIncludeAttributes - (optional) TRUE will load values from attribute table, too.
 	 * @return array Returns the row data in an associative array.
 	 */
@@ -255,6 +255,49 @@ CREATE TABLE IF NOT EXISTS `sources_attributes` (
 			throw new DbException($pdoe, 'getSourceAttrs('.$theSourceId.') failed.');
 		}
 		return $theResultSet;
+	}
+	
+	/**
+	 * Given a source id, return the attribute cursor for that source.
+	 * @param int $aSourceId - (required) the source id 
+	 * @param array/string $aFieldList - (optional) which fields to return, default is all of them.
+	 * @param SqlBuilder $aFilter - (optional) specifies restrictions on data to return
+	 * @param array $aSortList - (optional) sort results: fields as key => ('ASC' or 'DESC') as value.
+	 * @throws DbException
+	 * @return PDOStatement Returns the query statement object used to retrieve result records.
+	 */
+	public function getSourceAttrCursor($aSourceId, $aFieldList=null, SqlBuilder $aFilter=null, $aSortList=null) {
+		if ($this->isConnected()) try {
+			$theSql = SqlBuilder::withModel($this)->obtainParamsFrom(array('source_id' => $aSourceId));
+			$theSql->startWith('SELECT')->addFieldList($aFieldList)->add('FROM')->add($this->tnSourceAttrs);
+
+			$theSql->startWhereClause()->mustAddParam('source_id', 0, PDO::PARAM_INT);
+			$theSql->applyFilter($aFilter)->endWhereClause();
+	
+			$theSortList = (!empty($aSortList)) ? $aSortList : array('regex', 'regexpriority', 'attribute', 'value');
+			$theSql->applySortList($theSortList);
+	
+			return $theSql->query();
+		} catch (PDOException $pdoe) {
+			$this->debugLog(__METHOD__.' failed:');
+			if (!empty($aFilter)) $this->debugLog('filter='.$aFilter->mySql.' params='.$this->debugStr($aFilter->myParams));
+			if (!empty($aSortList)) $this->debugLog('sort='.$this->debugStr($aSortList));
+			$this->debugLog('sql='.$theSql->mySql.' params='.$this->debugStr($theSql->myParams));
+			throw new DbException($pdoe,  __METHOD__.' failed.');
+		}
+	}
+	
+	/**
+	 * Fetch the next row from the cursor and optionally get the attributes as well.
+	 * @param PDOStatement $aSourceAttrCursor - result data to retrieve.
+	 * @return array Returns the row data in an associative array.
+	 */
+	public function fetchSourceAttr(PDOStatement $aSourceAttrCursor) {
+		$theRow = $aSourceAttrCursor->fetch();
+		if (!empty($theRow)) {
+			$this->normalizeSourceAttrRow($theRow);
+		}
+		return $theRow;
 	}
 	
 	/**

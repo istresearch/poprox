@@ -23,7 +23,8 @@ class AdSources extends BaseActor {
 		if (!empty($aSourceId)) {
 			if ($this->isAllowed('roxy', 'monitoring')) {
 				$dbMemexHt = $this->getProp('MemexHt');
-				$v->results = $dbMemexHt->getSourceInfo($aSourceId,true);
+				$v->dbMemexHt = $dbMemexHt;
+				$v->results = $dbMemexHt->getSourceInfo($aSourceId, false);
 			}
 		} else {
 			return $this->getList();

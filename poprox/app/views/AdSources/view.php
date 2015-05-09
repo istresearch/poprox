@@ -30,16 +30,29 @@ $w .= '<tr class="'.$v->_rowClass.'"><td class="db-field-label">Req Attribute</t
 $w .= '<tr class="'.$v->_rowClass.'"><td class="db-field-label">Revision Field</td>'.'<td class="db-field">'.$theData['ad-revisionfield'].'</td></tr>'."\n";
 $w .= '<tr class="'.$v->_rowClass.'"><td class="db-field-label">Updated</td>'.'<td class="db-field">'.$theUpdatedTs.'</td></tr>'."\n";
 
-if (!empty($theData['attributes'])) {
-	//print($v->debugPrint($v->debugStr($theData['attributes'])));
-	foreach($theData['attributes'] as $theAttrKey => $theAttrInfo) if (!empty($theAttrInfo)) {
+print($w);
+unset($w); //free up memory
+
+//data has gotten too big to fit into memory, we need to render as we get data now.
+$dbMemexHt = $v->dbMemexHt;
+$theSourceAttrCursor = $dbMemexHt->getSourceAttrCursor($theData['id']);
+if (!empty($theSourceAttrCursor)) {
+	$theAttrInfo = $dbMemexHt->fetchSourceAttr($theSourceAttrCursor);
+	while (!empty($theAttrInfo)) {
 		$theAttrValue = htmlentities($theAttrInfo['value'], ENT_QUOTES|ENT_SUBSTITUTE, "UTF-8");
-		$w .= '<tr class="'.$v->_rowClass.'">';
-		$w .= '<td class="db-field-label">'.$theAttrInfo['name'].'</td>';
-		$w .= '<td class="db-field">'.$theAttrValue.'</td>';
-		$w .= "</tr>\n";
+		
+		$r = '<tr class="'.$v->_rowClass.'">';
+		$r .= '<td class="db-field-label">'.$theAttrInfo['name'].'</td>';
+		$r .= '<td class="db-field">'.$theAttrValue.'</td>';
+		$r .= "</tr>\n";
+		print($r);
+		
+		$theAttrInfo = $dbMemexHt->fetchSourceAttr($theSourceAttrCursor);
 	}
 }
+
+//back to our regularly scheduled page rendering
+$w = '';
 
 $w .= '</table>';
 	
