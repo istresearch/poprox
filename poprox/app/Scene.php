@@ -28,6 +28,7 @@ use com\blackmoonit\Widgets;
 use \Exception;
 use \ReflectionClass;
 use \ReflectionMethod;
+use \Traversable;
 {//begin namespace
 
 /**
@@ -604,8 +605,18 @@ class Scene extends BaseScene {
 	
 	/**
 	 * Create standard HTML load JavaScript file tag.
-	 * @param string $aFilename - filename (may include relative URL), be sure not to lead with "/".
-	 * @param string $aLocation - URL to prepend to $aFilename, if NULL or not supplied, defaults to BITS_LIB.
+	 * @param string $aLocation - URL to prepend to $aFilename.
+	 * @param string $aFilename - filename, may include relative URL (be sure not to lead with "/").
+	 * @return string Returns the appropriate tag string that will load the JavaScript file if included in HTML page.
+	 */
+	protected function returnScriptTag($aLocation, $aFilename) {
+		return Strings::format('<script type="text/javascript" src="%s/%s"></script>', $aLocation, $aFilename);
+	}
+	
+	/**
+	 * Create standard HTML load JavaScript file tag.
+	 * @param string|array|Traversable $aFilename - filename(s), may include relative URL (be sure not to lead with "/").
+	 * @param string $aLocation - (optional) URL to prepend to $aFilename, if NULL or not supplied, defaults to BITS_LIB.
 	 * @return string Returns the appropriate tag string that will load the JavaScript file if included in HTML page.
 	 */
 	public function getScriptTag($aFilename, $aLocation=null) {
@@ -614,20 +625,15 @@ class Scene extends BaseScene {
 		if (empty($aLocation))
 			$aLocation = BITS_LIB;
 		
-		if (is_array($aFilename)) {
-			$script = "";
-			for ($ii = 0; $ii < count($aFilename); $ii++) {
-				$script = $script . $this->returnScriptTag($aFilename[$ii], $aLocation) . "\n";
+		if (is_array($aFilename) || $aFilename instanceof Traversable) {
+			$theResult = '';
+			foreach ($aFilename as $theFilename) {
+				$theResult .= $this->returnScriptTag($aLocation, $theFilename) . "\n";
 			}
-			
-			return $script;
+			return $theResult;
 		} else {
-			return $this->returnScriptTag($aFilename, $aLocation);
+			return $this->returnScriptTag($aLocation, $aFilename);
 		}
-	}
-	
-	private function returnScriptTag($aFilename, $aLocation) {
-		return Strings::format('<script type="text/javascript" src="%s/%s"></script>', $aLocation, $aFilename);
 	}
 	
 	/**
