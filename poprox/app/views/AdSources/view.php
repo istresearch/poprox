@@ -4,6 +4,7 @@ use BitsTheater\Scene as MyScene;
 /* @var $v MyScene */
 use com\blackmoonit\Strings;
 use com\blackmoonit\Widgets;
+use ISTResearch_Roxy\models\MemexHt; /* @var $dbMemexHt MemexHt */
 $recite->includeMyHeader();
 
 $jsCode = <<<EOD
@@ -14,7 +15,7 @@ $w = $v->createJsTagBlock($jsCode);
 $jsCode = ''; //reset so code downstream will not duplicate the above scripts
 
 $theData = $v->results;
-$w .= '<h2>Source: '.$theData['display_name'].'</h2>';
+$w .= '<h2>Source: '.$theData['display_name'].' (ID '.$theData['id'].')</h2>';
 $w .= $v->renderMyUserMsgsAsString();
 
 $theTsId = Strings::createUUID();
@@ -23,39 +24,41 @@ $tempStr = '<span id="'.$theTsId.'">'.$theData['updated_ts'].'</span>';
 $theUpdatedTs = $tempStr.' (local)';
 
 $w .= '<table id="memex-source-info" class="db-display">';
-$w .= '<tr class="'.$v->_rowClass.'"><td class="db-field-label">ID</td>'.'<td class="db-field">'.$theData['id'].'</td></tr>'."\n";
-$w .= '<tr class="'.$v->_rowClass.'"><td class="db-field-label">Scrape Delay</td>'.'<td class="db-field">'.$theData['scrapedelay'].'</td></tr>'."\n";
-$w .= '<tr class="'.$v->_rowClass.'"><td class="db-field-label">Error URL</td>'.'<td class="db-field">'.$theData['ad-errorurl'].'</td></tr>'."\n";
-$w .= '<tr class="'.$v->_rowClass.'"><td class="db-field-label">Req Attribute</td>'.'<td class="db-field">'.$theData['ad-requiredattribute'].'</td></tr>'."\n";
-$w .= '<tr class="'.$v->_rowClass.'"><td class="db-field-label">Revision Field</td>'.'<td class="db-field">'.$theData['ad-revisionfield'].'</td></tr>'."\n";
-$w .= '<tr class="'.$v->_rowClass.'"><td class="db-field-label">Updated</td>'.'<td class="db-field">'.$theUpdatedTs.'</td></tr>'."\n";
+//$w .= '<tr class="'.$v->_rowClass.'"><td class="db-field-label">ID</td>'.'<td class="db-field">'.$theData['id'].'</td></tr>'."\n";
+$w .= '<tr class="'.$v->_rowClass.'"><td class="db-field-label" style="min-width:20ch">Scrape Delay</td>'.'<td class="db-field">'.$theData['scrapedelay'].'</td></tr>'."\n";
+$w .= '<tr class="'.$v->_rowClass.'"><td class="db-field-label" style="min-width:20ch">Error URL</td>'.'<td class="db-field">'.$theData['ad-errorurl'].'</td></tr>'."\n";
+$w .= '<tr class="'.$v->_rowClass.'"><td class="db-field-label" style="min-width:20ch">Req Attribute</td>'.'<td class="db-field">'.$theData['ad-requiredattribute'].'</td></tr>'."\n";
+$w .= '<tr class="'.$v->_rowClass.'"><td class="db-field-label" style="min-width:20ch">Revision Field</td>'.'<td class="db-field">'.$theData['ad-revisionfield'].'</td></tr>'."\n";
+$w .= '<tr class="'.$v->_rowClass.'"><td class="db-field-label" style="min-width:20ch">Updated</td>'.'<td class="db-field">'.$theUpdatedTs.'</td></tr>'."\n";
+$w .= '</table>';
 
 print($w);
-unset($w); //free up memory
+$w = '';
 
-//data has gotten too big to fit into memory, we need to render as we get data now.
+if (empty($v->pagesz))
+	$v->pagesz = 1000; //default page size is 1000
 $dbMemexHt = $v->dbMemexHt;
-$theSourceAttrCursor = $dbMemexHt->getSourceAttrCursor($theData['id']);
-if (!empty($theSourceAttrCursor)) {
-	$theAttrInfo = $dbMemexHt->fetchSourceAttr($theSourceAttrCursor);
-	while (!empty($theAttrInfo)) {
+$theSourceAttrs = $dbMemexHt->getSourceAttrsToDisplay($theData['id'], $v);
+
+$w .= $v->getPagerHtml( basename(__FILE__, '.php').'/'.$theData['id'] );
+$w .= '<table id="memex-source-info" class="db-display">';
+print($w);
+
+if (!empty($theSourceAttrs)) {
+	foreach ($theSourceAttrs as $theAttrInfo) {
 		$theAttrValue = htmlentities($theAttrInfo['value'], ENT_QUOTES|ENT_SUBSTITUTE, "UTF-8");
 		
 		$r = '<tr class="'.$v->_rowClass.'">';
-		$r .= '<td class="db-field-label">'.$theAttrInfo['name'].'</td>';
+		$r .= '<td class="db-field-label" style="min-width:20ch">'.$theAttrInfo['name'].'</td>';
 		$r .= '<td class="db-field">'.$theAttrValue.'</td>';
 		$r .= "</tr>\n";
 		print($r);
-		
-		$theAttrInfo = $dbMemexHt->fetchSourceAttr($theSourceAttrCursor);
 	}
 }
-
 //back to our regularly scheduled page rendering
-$w = '';
+$w = '</table>';
+$w .= $v->getPagerHtml( basename(__FILE__, '.php').'/'.$theData['id'] );
 
-$w .= '</table>';
-	
 $w .= str_repeat('<br />',8);
 
 $w .= $v->createJsTagBlock($jsCode, 'roxy_view_source_runscript');

@@ -259,7 +259,7 @@ CREATE TABLE IF NOT EXISTS `sources_attributes` (
 	
 	/**
 	 * Given a source id, return the attribute cursor for that source.
-	 * @param int $aSourceId - (required) the source id 
+	 * @param int $aSourceId - (required) the source id.
 	 * @param array/string $aFieldList - (optional) which fields to return, default is all of them.
 	 * @param SqlBuilder $aFilter - (optional) specifies restrictions on data to return
 	 * @param array $aSortList - (optional) sort results: fields as key => ('ASC' or 'DESC') as value.
@@ -298,6 +298,62 @@ CREATE TABLE IF NOT EXISTS `sources_attributes` (
 			$this->normalizeSourceAttrRow($theRow);
 		}
 		return $theRow;
+	}
+	
+	/**
+	 * Show the attributes for a source (pager and such).
+	 * @param int $aSourceId - (required) the source id.
+	 * @param Scene $aScene - scene being used in case we need user-defined query limits.
+	 * @param array/string $aFieldList - (optional) which fields to return, default is all of them.
+	 * @param SqlBuilder $aFilter - (optional) specifies restrictions on data to return
+	 * @param array $aSortList - (optional) sort results: fields as key => ('ASC' or 'DESC') as value.
+	 * @param boolean $bExportData - (optional) are we exporting said data or just displaying it
+	 * (default is FALSE).
+	 * @throws DbException
+	 * @return array Returns the array of source attribute data.
+	 */
+	public function getSourceAttrsToDisplay($aSourceId, $aScene, $aFieldList=null, SqlBuilder $aFilter=null, 
+			$aSortList=null, $bExportData=false) {
+		$theQueryLimit = (!empty($aScene) && !$bExportData) ? $aScene->getQueryLimit($this->dbType()) : null;
+		$theResultSet = array();
+		if ($this->isConnected()) {
+			try {
+				$rs = null;
+				$myFinally = FinallyCursor::forDbCursor($rs);
+
+				$theSql = SqlBuilder::withModel($this)->obtainParamsFrom(array('sources_id' => $aSourceId));
+				$theSql->startWith('SELECT')->addFieldList($aFieldList)->add('FROM')->add($this->tnSourceAttrs);
+				$theSql->startWhereClause()->mustAddParam('sources_id', 0, PDO::PARAM_INT);
+				$theSql->applyFilter($aFilter)->endWhereClause();
+				
+				if (!empty($theQueryLimit)) {
+					//if we have a query limit, we may be using a pager, get total count for pager display
+					$aScene->setPagerTotalRowCount($theSql->getQueryCountTotal('id'));
+				}
+				
+				$theSortList = (!empty($aSortList)) ? $aSortList : array('regex', 'regexpriority', 'attribute', 'value');
+				$theSql->applySortList($theSortList);
+
+				if (!empty($theQueryLimit)) {
+					$theSql->add($theQueryLimit);
+				}
+				
+				$rs = $theSql->query();
+				//$this->debugLog(__METHOD__.' sql="'.$theSql.'" params='.$this->debugStr($theParams));
+				while (($theRow = $rs->fetch()) !== false) {
+					$this->normalizeSourceAttrRow($theRow);
+					$theResultSet[$theRow['source_attribute_id']] = $theRow;
+				}
+				$rs->closeCursor();
+			} catch (PDOException $pdoe) {
+				$this->debugLog(__METHOD__.' failed:');
+				if (!empty($aFilter)) $this->debugLog('  filter='.$aFilter->mySql.' params='.$this->debugStr($aFilter->myParams));
+				if (!empty($aSortList)) $this->debugLog('  sort='.$this->debugStr($aSortList));
+				$this->debugLog('  sql='.$theSql->mySql.' params='.$this->debugStr($theSql->myParams));
+				throw new DbException($pdoe, __METHOD__.' failed.');
+			}
+		}
+		return $theResultSet;
 	}
 	
 	/**
