@@ -7,7 +7,7 @@ use com\blackmoonit\Arrays;
 class Website extends BaseResources {
 	public $feature_id = 'IST Research: Poprox website'; //DO NOT TRANSLATE!
 	public $version_seq = 2;	//build number, inc if db models need updating
-	public $version = '2.3.6';	//displayed version text
+	public $version = '2.3.7';	//displayed version text
 	
 	public $list_patrons_html = array(
 			'prime_investor' => '<a href="http://www.istresearch.com/">IST Research, LLC.</a>',
@@ -62,7 +62,7 @@ class Website extends BaseResources {
 		try {
 			//nothing to do, yet
 		} catch (Exception $e) {
-			//throw expection if your update code fails (logging it would be a good idea, too).
+			//throw exception if your update code fails (logging it would be a good idea, too).
 			$this->debugLog(__METHOD__.' '.$e->getMessage());
 			throw $e;
 		}

@@ -1,9 +1,11 @@
+2015-June-12 v2.3.7
+* Framework update which fixes website Settings not getting updated issue.
 2015-May-12 v2.3.6
 * MEM-514 - fix Source display issue for a Source with many thousands of attributes to display with a pager.
 2015-May-09 v2.3.5
 * MEM-514 - fix out of memory error when retrieving Source data for display.
 2015-Apr-17 v2.3.4
-* Framework update which moves website specific definitions out of the langages folder and into the res folder.
+* Framework update which moves website specific definitions out of the languages folder and into the res folder.
 * The framework update allows version numbers, css and js files, and many other items get defined once instead of per language.
 2015-Apr-16 v2.3.3
 * Ad photos load the URL from the db if local example images are missing or the magic "use-db-url" exists.
