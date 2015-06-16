@@ -1,5 +1,6 @@
-2015-June-12 v2.3.7
+2015-June-16 v2.3.7
 * Framework update which fixes website Settings not getting updated issue.
+* Framework update which adds HTTP_X_FORWARDED_PROTO header to detect HTTPS use.
 2015-May-12 v2.3.6
 * MEM-514 - fix Source display issue for a Source with many thousands of attributes to display with a pager.
 2015-May-09 v2.3.5
