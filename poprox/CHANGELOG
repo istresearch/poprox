@@ -1,4 +1,5 @@
-2015-July-08 v2.3.8
+2015-July-10 v2.3.8
+* Framework update which fixes checkbox settings not saving correctly.
 * Framework update which allows for more fine control over mobile authentication.
 2015-June-16 v2.3.7
 * Framework update which fixes website Settings not getting updated issue.

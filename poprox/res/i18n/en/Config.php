@@ -2,6 +2,7 @@
 namespace BitsTheater\res\en;
 use BitsTheater\res\en\BitsConfig as BaseResources;
 use BitsTheater\costumes\ConfigSettingInfo;
+use com\blackmoonit\Strings;
 {//begin namespace
 
 class Config extends BaseResources {
@@ -24,7 +25,7 @@ class Config extends BaseResources {
 	public $input_poprox = array(
 			'ht_classifier_score_enabled' => array(
 					'type' => ConfigSettingInfo::INPUT_BOOLEAN,
-					'default' => 0,
+					'default' => '0',
 			),
 			'ht_classifier_score_url' => array(
 					'type' => ConfigSettingInfo::INPUT_STRING,
