@@ -7,29 +7,37 @@ use BitsTheater\costumes\EnumResEntry;
 class Permissions extends BaseResources {
 	
 	public $label_my_namespaces = array(
-		'roxy' => 'Roxy',
+			'roxy' => 'Roxy',
+			'roxy_api' => 'Roxy Data API',
 	);
 	public $desc_my_namespaces = array(
-		'roxy' => 'Roxy Database Access',
+			'roxy' => 'Roxy Database Access',
+			'roxy_api' => 'Data API (external/mobile apps)',
 	);
 	
 	public $label_roxy = array(
-		'poprox' => 'PopRox',
-		'dashboard' => 'Statistics',
-		'monitoring' => 'Scrape Monitoring',
-		'mtask' => 'Microtask',
-		'view_data' => 'View Records',
-		'run_reports' => 'Run Reports',
+			'poprox' => 'PopRox',
+			'dashboard' => 'Statistics',
+			'monitoring' => 'Scrape Monitoring',
+			'mtask' => 'Microtask',
+			'view_data' => 'View Records',
+			'run_reports' => 'Run Reports',
 	);
 	public $desc_roxy = array(
-		'poprox' => 'Able to score Ads/Providers/Organizations/Reviews',
-		'dashboard' => 'View dashboard statistics.',
-		'monitoring' => 'View scrape statistics and spider states.',
-		'mtask' => 'Able to conduct microtasks.',
-		'view_data' => 'View Ads, Reviews, Photos, etc.',
-		'run_reports' => 'Conduct searches and run reports.',
+			'poprox' => 'Able to score Ads/Providers/Organizations/Reviews',
+			'dashboard' => 'View dashboard statistics.',
+			'monitoring' => 'View scrape statistics and spider states.',
+			'mtask' => 'Able to conduct microtasks.',
+			'view_data' => 'View Ads, Reviews, Photos, etc.',
+			'run_reports' => 'Conduct searches and run reports.',
 	);
 	
+	public $label_roxy_api = array(
+			'access' => 'Access the Data API',
+	);
+	public $desc_roxy_api = array(
+			'access' => 'Allows a mobile or external app to interact with the server.',
+	);
 	
 	/**
 	 * Some resources need to be initialized by running code rather than a static definition.

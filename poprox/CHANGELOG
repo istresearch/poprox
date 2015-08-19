@@ -1,3 +1,5 @@
+2015-Aug-18 v2.4.0
+* Framework update which brings password reset by email, if desired and set up on the server.
 2015-July-10 v2.3.8
 * Framework update which fixes checkbox settings not saving correctly.
 * Framework update which allows for more fine control over mobile authentication.

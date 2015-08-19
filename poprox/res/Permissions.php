@@ -7,6 +7,7 @@ class Permissions extends BaseResources {
 
 	public $enum_my_namespaces = array(
 			'roxy',
+			'roxy_api',
 	);
 	
 	public $enum_roxy = array(
@@ -16,6 +17,10 @@ class Permissions extends BaseResources {
 			'mtask',
 			'view_data',
 			'run_reports',
+	);
+	
+	public $enum_roxy_api = array(
+			'access',
 	);
 	
 	/**
