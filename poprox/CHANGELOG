@@ -1,3 +1,7 @@
+2015-Oct-28 v2.4.1
+* Framework update which brings a security update for creating the password hash.
+* Framework update which sets explicit timestamps to avoid potential issues with MySQL.
+* Framework update which fixes an issue with creating a new security group without a Parent defined. 
 2015-Aug-18 v2.4.0
 * Framework update which brings password reset by email, if desired and set up on the server.
 2015-July-10 v2.3.8

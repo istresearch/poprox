@@ -6,8 +6,8 @@ use com\blackmoonit\Arrays;
 
 class Website extends BaseResources {
 	public $feature_id = 'IST Research: Poprox website'; //DO NOT TRANSLATE!
-	public $version_seq = 2;	//build number, inc if db models need updating
-	public $version = '2.4.0';	//displayed version text
+	public $version_seq = 3;	//build number, inc if db models need updating
+	public $version = '2.4.1';	//displayed version text
 	
 	public $list_patrons_html = array(
 			'prime_investor' => '<a href="http://www.istresearch.com/">IST Research, LLC.</a>',
