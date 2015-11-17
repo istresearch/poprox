@@ -1,3 +1,6 @@
+2015-Nov-17 v2.4.2
+* Framework update which fixes several bugs with WidgetBuilder widgets (unused by Poprox).
+* Framework update which adds more widget types to Settings area.
 2015-Oct-28 v2.4.1
 * Framework update which brings a security update for creating the password hash.
 * Framework update which sets explicit timestamps to avoid potential issues with MySQL.

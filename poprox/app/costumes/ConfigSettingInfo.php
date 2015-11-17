@@ -22,6 +22,7 @@ use BitsTheater\costumes\ConfigResEntry;
 use BitsTheater\Director;
 use com\blackmoonit\Strings;
 use com\blackmoonit\Widgets;
+use com\blackmoonit\widgetbuilder\TextAreaWidget ;
 use com\blackmoonit\Arrays;
 use BitsTheater\models\Config;
 {//namespace begin
@@ -30,11 +31,13 @@ use BitsTheater\models\Config;
  * Configuration setting information in class form
  * instead of associative array form.
  */
-class ConfigSettingInfo extends BaseCostume {
-	const INPUT_STRING = 'string';
-	const INPUT_BOOLEAN = 'boolean';
-	const INPUT_DROPDOWN = 'dropdown';
-	const INPUT_PASSWORD = 'string-pw';
+class ConfigSettingInfo extends BaseCostume
+{
+	const INPUT_STRING = 'string' ;
+	const INPUT_TEXT = 'text' ;
+	const INPUT_BOOLEAN = 'boolean' ;
+	const INPUT_DROPDOWN = 'dropdown' ;
+	const INPUT_PASSWORD = 'string-pw' ;
 	
 	public $config_namespace_info;
 	public $config_key;
@@ -128,17 +131,27 @@ class ConfigSettingInfo extends BaseCostume {
 	 * Get the HTML string to use as a widget for this setting.
 	 * @return string Returns the HTML to use as a setting widget.
 	 */
-	public function getInputWidget() {
-		$theWidgetName = $this->getWidgetName();
-		$theValue = $this->getCurrentValue();
-		switch ($this->mSettingInfo->input_type) {
+	public function getInputWidget()
+	{
+		$theWidgetName = $this->getWidgetName() ;
+		$theValue = $this->getCurrentValue() ;
+		switch( $this->mSettingInfo->input_type )
+		{
 			case self::INPUT_STRING:
-				return Widgets::createTextBox($theWidgetName,$theValue);
+				return Widgets::createTextBox($theWidgetName,$theValue) ;
+			case self::INPUT_TEXT:
+				return (new TextAreaWidget($theWidgetName))
+					->append( $theValue )
+					->setRows(4)->setCols(60)
+					->setAttr( 'maxlength', 250 )
+					->renderInline()
+					;
 			case self::INPUT_BOOLEAN:
 				return Widgets::createCheckBox($theWidgetName,!empty($theValue));
 			case self::INPUT_DROPDOWN:
 				$theItemList = array();
-				foreach($this->mSettingInfo->input_enums as $key => $valueRow) {
+				foreach( $this->mSettingInfo->input_enums as $key => $valueRow )
+				{
 					if (is_array($valueRow))
 						$theItemList[$key] = $valueRow['label'];
 					else
@@ -158,9 +171,12 @@ class ConfigSettingInfo extends BaseCostume {
 	 * @param Scene $aScene - the scene containing the values.
 	 * @return mixed Returns the value to be saved.
 	 */
-	public function getInputValue($aScene) {
+	public function getInputValue($aScene)
+	{
 		$theWidgetName = $this->getWidgetName();
-		switch ($this->mSettingInfo->input_type) {
+		switch( $this->mSettingInfo->input_type )
+		{
+			case self::INPUT_TEXT:
 			case self::INPUT_STRING:
 			case self::INPUT_PASSWORD:
 				return $aScene->$theWidgetName;
