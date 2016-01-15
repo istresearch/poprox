@@ -1,3 +1,6 @@
+2016-Jan-15 v2.5.0
+* Framework update which allows for a standardized API response object, if desired.
+* Framework update which allows for debugging Out of Memeory errors easier.
 2015-Nov-17 v2.4.2
 * Framework update which fixes several bugs with WidgetBuilder widgets (unused by Poprox).
 * Framework update which adds more widget types to Settings area.
