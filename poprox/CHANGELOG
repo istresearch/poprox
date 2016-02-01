@@ -1,3 +1,7 @@
+2016-Feb-01 v2.5.1
+* Framework update which introduces login auto-lockout after X failed attempts per hour.
+* Framework update which introduces CSRF protection for API's using "ajaj" prefix.
+* Framework update which introduces non-cached-auth for API's using "api" prefix.
 2016-Jan-15 v2.5.0
 * Framework update which allows for a standardized API response object, if desired.
 * Framework update which allows for debugging Out of Memeory errors easier.

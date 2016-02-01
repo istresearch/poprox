@@ -11,9 +11,10 @@ $recite->includeMyHeader($h);
 $w = '';
 
 $w .= '<h2>Login</h2>';
-if( isset($v->err_msg) )
-{
-	$w .= '<span class="msg-error">' . $v->err_msg . '</span>' ;
+if (isset($v->err_msg)) {
+	$w .= '<span class="msg-error">'.$v->err_msg.'</span>';
+} else {
+	$w .= $v->renderMyUserMsgsAsString();
 }
 $w .= '<table class="db-entry">' ;
 
