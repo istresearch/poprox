@@ -1,3 +1,8 @@
+2016-Mar-03 v2.5.2
+* Framework update for security updates.
+* Framework update registration cap website option added.
+* Framework newly introduced CSRF protection mechanism debugged.
+* Framework update means Admin> Settings page now protected by CSRF protection mechanism.
 2016-Feb-01 v2.5.1
 * Framework update which introduces login auto-lockout after X failed attempts per hour.
 * Framework update which introduces CSRF protection for API's using "ajaj" prefix.
