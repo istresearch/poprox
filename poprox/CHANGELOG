@@ -1,3 +1,13 @@
+2016-Apr-09 v2.5.3
+* Framework updated to v3.4.4
+* Framework: Actor refactored so the SEO URL transformation can be tweaked on an Actor-by-Actor basis now.
+* Framework: The base Actor public methods cannot be called via URL by default.
+* Framework: BrokenLeg converts Exceptions more completely so that more information is passed to the caller.
+* Framework: Actor names are now converted to class names using the standard function instead of relying on PHP's case insensitive nature.
+* Framework: Several ancestor class names changed so they did not share the same name as their descendant as website installation was starting to get confused about which class to load.
+* Framework: Many new API endpoints exist so that framework features that used to require page renders to accomplish can now be done via a JavaScript front-end calling API routines in the background.
+* Framework: Install now provides an API endpoint to accomplish the entire install process in one call. This allows automation such as Ansible to install a website entirely without human interaction.
+* Framework: Boolean website settings that employed a checkbox widget now work properly when unchecking them.
 2016-Mar-03 v2.5.2
 * Framework update for security updates.
 * Framework update registration cap website option added.

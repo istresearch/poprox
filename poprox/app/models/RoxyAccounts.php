@@ -1,7 +1,7 @@
 <?php
 
 namespace ISTResearch_Roxy\models;
-use BitsTheater\models\PropCloset\Accounts as BaseModel;
+use BitsTheater\models\PropCloset\BitsAccounts as BaseModel;
 {//begin namespace
 
 /**
