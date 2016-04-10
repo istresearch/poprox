@@ -8,6 +8,9 @@
 * Framework: Many new API endpoints exist so that framework features that used to require page renders to accomplish can now be done via a JavaScript front-end calling API routines in the background.
 * Framework: Install now provides an API endpoint to accomplish the entire install process in one call. This allows automation such as Ansible to install a website entirely without human interaction.
 * Framework: Boolean website settings that employed a checkbox widget now work properly when unchecking them.
+* Framework: "Auth" website settings now editable by a non-titan group admin.
+* Framework: PHP 5.5 deprecated code fixed.
+* Text wrap feature greatly improved to attempt to break on word boundaries.
 2016-Mar-03 v2.5.2
 * Framework update for security updates.
 * Framework update registration cap website option added.
