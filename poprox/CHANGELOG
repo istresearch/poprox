@@ -11,6 +11,7 @@
 * Framework: "Auth" website settings now editable by a non-titan group admin.
 * Framework: PHP 5.5 deprecated code fixed.
 * Text wrap feature greatly improved to attempt to break on word boundaries.
+* Framework: Improved security for permission related endpoints.
 2016-Mar-03 v2.5.2
 * Framework update for security updates.
 * Framework update registration cap website option added.
