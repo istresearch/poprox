@@ -1,3 +1,13 @@
+2016-May-06 v2.5.4
+* Framework updated to v3.4.5
+* Framework: CLI capability introduced.
+* Framework: getModel()/getProp() can now accept the full class name as its parameter.
+* Framework: Saving list of configuration settings now returns those that were changed.
+* Framework: AuthGroups & BitsGroups refactored to ensure protection from SQL Injection. Admins were the only ones capable of introducing such SQL Injection, so the threat for earlier versions is quite low.
+* Framework: "Action" configuration setting introduced so that Buttons are now an option.
+* Framework: Traits for various classes have been introduced.
+* Framework: CSRF tokens now take advantage of the AuthBasic token mechanism, if available.
+* Framework: The hidden input companion field for checkboxes now has its value default to "0".
 2016-Apr-09 v2.5.3
 * Framework updated to v3.4.4
 * Framework: Actor refactored so the SEO URL transformation can be tweaked on an Actor-by-Actor basis now.
