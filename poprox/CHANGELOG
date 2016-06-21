@@ -1,3 +1,12 @@
+2016-June-21 v2.5.5
+* Framework: updated to v3.5.0
+* Framework: Move configs folder out from [site]/app/configs to just [site]/configs for new sites.
+* Framework: Remove the "no_sessions" workaround which just causes more trouble than it is worth.
+* Framework: Updated PasswordReset feature.
+* Framework: Updated SqlBuilder to handle paged queries easier.
+* Framework: Added UserParameterException.
+* Framework: Updated CLI with a -h param to specify which config to use.
+* Framework: Allow CLI to operate from any folder, not just from the app/cli subfolder.
 2016-May-06 v2.5.4
 * Framework updated to v3.4.5
 * Framework: CLI capability introduced.

@@ -22,10 +22,10 @@ use BitsTheater\models\Accounts; /* @var $dbAccounts Accounts */
 use BitsTheater\Scene;
 use BitsTheater\costumes\IFeatureVersioning;
 use BitsTheater\costumes\AuthPasswordReset ;
-use BitsTheater\costumes\AuthPasswordResetException ;
 use BitsTheater\costumes\SqlBuilder;
 use BitsTheater\costumes\AccountInfoCache;
 use BitsTheater\costumes\HttpAuthHeader;
+use BitsTheater\outtakes\PasswordResetException ;
 use com\blackmoonit\database\FinallyCursor;
 use com\blackmoonit\exceptions\DbException;
 use com\blackmoonit\Strings;
@@ -705,8 +705,8 @@ class AuthBasic extends BaseModel implements IFeatureVersioning
 	/**
 	 * Authenticates using only the information that a password reset object
 	 * would know upon reentry.
-	 * @param unknown $dbAccounts an Accounts prop
-	 * @param unknown $aResetUtils an AuthPasswordReset costume
+	 * @param Accounts $dbAccounts an Accounts prop
+	 * @param AuthPasswordReset $aResetUtils an AuthPasswordReset costume
 	 */
 	public function setPasswordResetCreds( Accounts &$dbAccounts,
 			AuthPasswordReset &$aResetUtils )
@@ -715,7 +715,7 @@ class AuthBasic extends BaseModel implements IFeatureVersioning
 		{
 			$this->debugLog( __METHOD__ . ' caught a password reset reentry '
 					. 'that didn\'t have the right credentials.' ) ;
-			throw AuthPasswordResetException::toss( $this,
+			throw PasswordResetException::toss( $this,
 					'REENTRY_AUTH_FAILED' ) ;
 		}
 		$theAccountID = $aResetUtils->getAccountID() ;
@@ -883,10 +883,8 @@ class AuthBasic extends BaseModel implements IFeatureVersioning
 				if (!empty($this->director->account_info)) {
 					//data retrieval succeeded, save the account id in session cache
 					$this->director[self::KEY_userinfo] = $theAccountId;
-					if (!$this->director->isNoSession()) {
-						//bake (create) a new cookie for next time
-						$this->updateCookie($theAuthId, $theAccountId);
-					}
+					//bake (create) a new cookie for next time
+					$this->updateCookie($theAuthId, $theAccountId);
 				}
 				unset($theAuthTokenRow);
 			}
@@ -952,9 +950,6 @@ class AuthBasic extends BaseModel implements IFeatureVersioning
 				//$this->debugLog(__METHOD__.' chkhdr='.$this->debugStr($theAuthHeader));
 				if (!empty($theAuthHeader->auth_id) && !empty($theAuthHeader->auth_token)) {
 					$this->removeStaleMobileAuthTokens();
-					if ($theAuthHeader->no_session) {
-						$this->director->destroySessionOnCleanup();
-					}
 					$theAuthTokenRow = $this->getAuthTokenRow($theAuthHeader->auth_id, $theAuthHeader->auth_token);
 					//$this->debugLog(__METHOD__.' arow='.$this->debugStr($theAuthTokenRow));
 					if (!empty($theAuthTokenRow)) {
@@ -984,6 +979,7 @@ class AuthBasic extends BaseModel implements IFeatureVersioning
 				}
 				break;
 		}//end switch
+		return false;
 	}
 	
 	/**
@@ -1096,14 +1092,33 @@ class AuthBasic extends BaseModel implements IFeatureVersioning
 		if ($this->director->canConnectDb()) {
 			$this->removeStaleAuthLockoutTokens();
 			$dbAccounts = $this->getProp('Accounts');
+			$bAuthorized = false;
+			$bAuthorizedViaHeaders = false;
+			$bAuthorizedViaSession = false;
+			$bAuthorizedViaWebForm = false;
+			$bAuthorizedViaCookies = false;
 
-			$bAuthorized = $this->checkHeadersForTicket($dbAccounts, $aScene);
+			$bAuthorizedViaHeaders = $this->checkHeadersForTicket($dbAccounts, $aScene);
+			//if ($bAuthorizedViaHeaders) $this->debugLog(__METHOD__.' header auth');
+			$bAuthorized = $bAuthorized || $bAuthorizedViaHeaders;
 			if (!$bAuthorized && !$aScene->bCheckOnlyHeadersForAuth)
-				$bAuthorized = $this->checkSessionForTicket($dbAccounts, $aScene);
+			{
+				$bAuthorizedViaSession = $this->checkSessionForTicket($dbAccounts, $aScene);
+				//if ($bAuthorizedViaSession) $this->debugLog(__METHOD__.' session auth');
+				$bAuthorized = $bAuthorized || $bAuthorizedViaSession;
+			}
 			if (!$bAuthorized && !$aScene->bCheckOnlyHeadersForAuth)
-				$bAuthorized = $this->checkWebFormForTicket($dbAccounts, $aScene);
+			{
+				$bAuthorizedViaWebForm = $this->checkWebFormForTicket($dbAccounts, $aScene);
+				//if ($bAuthorizedViaWebForm) $this->debugLog(__METHOD__.' webform auth');
+				$bAuthorized = $bAuthorized || $bAuthorizedViaWebForm;
+			}
 			if (!$bAuthorized && !$aScene->bCheckOnlyHeadersForAuth)
-				$bAuthorized = $this->checkCookiesForTicket($dbAccounts, $_COOKIE);
+			{
+				$bAuthorizedViaCookies = $this->checkCookiesForTicket($dbAccounts, $_COOKIE);
+				//if ($bAuthorizedViaCookies) $this->debugLog(__METHOD__.' cookie auth');
+				$bAuthorized = $bAuthorized || $bAuthorizedViaCookies;
+			}
 			if (!$bAuthorized && !$aScene->bCheckOnlyHeadersForAuth)
 				parent::checkTicket($aScene);
 
@@ -1118,8 +1133,11 @@ class AuthBasic extends BaseModel implements IFeatureVersioning
 					if (!empty($theAuthRow))
 						$this->myAuthId = $theAuthRow['auth_id'];
 				}
-				$this->setCsrfTokenCookie();
+				//$this->debugLog(__METHOD__.' myAuthId='.$this->myAuthId);
+				if ($bAuthorizedViaWebForm || $bAuthorizedViaCookies)
+					$this->setCsrfTokenCookie();
 			}
+			//else $this->debugLog(__METHOD__.' not authorized');
 		}
 	}
 	
@@ -1356,11 +1374,11 @@ class AuthBasic extends BaseModel implements IFeatureVersioning
 		//generate a token with "mA" so we can tell them apart from cookie tokens
 		$theUserToken = $this->director->app_id.'-'.$aAuthId;
 		$theAuthToken = $this->generateAuthToken($aAuthId, $aAcctId, self::TOKEN_PREFIX_MOBILE);
+		/* do not give mobile the auth token in a cookie!
 		$theStaleTime = time()+($this->getCookieDurationInDays('duration_1_day')*(60*60*24));
-		if (!$this->director->isNoSession()) {
-			$this->setMySiteCookie(self::KEY_userinfo, $theUserToken, $theStaleTime);
-			$this->setMySiteCookie(self::KEY_token, $theAuthToken, $theStaleTime);
-		}
+		$this->setMySiteCookie(self::KEY_userinfo, $theUserToken, $theStaleTime);
+		$this->setMySiteCookie(self::KEY_token, $theAuthToken, $theStaleTime);
+		*/
 		return $theAuthToken;
 	}
 	
@@ -1502,17 +1520,17 @@ class AuthBasic extends BaseModel implements IFeatureVersioning
 	
 	/**
 	 * Writes a new password reset request token into the database.
-	 * @param mixed $aResetUtils an instance of the AuthPasswordReset costume
-	 *  in which the account ID has already been populated
+	 * @param AuthPasswordReset $aResetUtils an instance of the
+	 *  AuthPasswordReset costume in which the account ID has already been
+	 *  populated
 	 * @return boolean true if successful, or an exception otherwise
 	 */
-	public function generatePasswordRequestFor( &$aResetUtils )
+	public function generatePasswordRequestFor( AuthPasswordReset &$aResetUtils )
 	{
 		if( ! $this->isConnected() )
-			throw AuthPasswordResetException::toss( $this, 'NOT_CONNECTED' ) ;
+			throw BrokenLeg::toss( $this, 'DB_CONNECTION_FAILED' ) ;
 		if( ! isset( $aResetUtils ) )
-			throw AuthPasswordResetException::toss( $this,
-					'EMPERORS_NEW_COSTUME' ) ;
+			throw PasswordResetException::toss( $this, 'EMPERORS_NEW_COSTUME' );
 
 		// Might throw exceptions: 
 		$aResetUtils->generateToken()->deleteOldTokens() ;
